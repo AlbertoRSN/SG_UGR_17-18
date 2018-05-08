@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>06-webcam-motion-detection.html</h2>
+<pre><code class="html">
+&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+	&lt;title&gt;Detecci&#243;n de movimiento&lt;/title&gt;
+	&lt;!-- http://www.webrtc.org/ --&gt;
+	&lt;meta charset=&quot;utf-8&quot;&gt;
+	&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0&quot;&gt;
+	&lt;script src=&quot;../frameworks/adapter.js&quot; defer&gt;&lt;/script&gt;
+	&lt;style&gt;
+		body 
+		{
+			font-family: Monospace;
+			font-weight: bold;
+			background-color: #ccccff;
+			margin: 5px;
+			overflow: hidden;
+		}
+	&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;video id=&quot;monitor&quot; autoplay style=&quot;display: none; width: 320px; height: 240px;&quot;&gt;&lt;/video&gt;
+
+&lt;div id=&quot;canvasLayers&quot; width=&quot;320&quot; height=&quot;240&quot; style=&quot;position: absolute; right: 0px; top: 0px; width: 320px; height: 240px; overflow:hidden;&quot;&gt;
+&lt;canvas id=&quot;videoCanvas&quot; width=&quot;320&quot; height=&quot;240&quot; style=&quot;z-index: 1; position: absolute; left:0px; top:0px;width: 320px; height: 240px; overflow:hidden;&quot;&gt;&lt;/canvas&gt;
+&lt;canvas id=&quot;buttonsLayer&quot; width=&quot;320&quot; height=&quot;240&quot; style=&quot;z-index: 2; position: absolute; left:0px; top:0px; opacity:0.5;width: 320px; height: 240px; overflow:hidden;&quot;&gt;&lt;/canvas&gt;
+&lt;/div&gt;
+&lt;canvas id=&quot;blendCanvas&quot;  width=&quot;320&quot; height=&quot;240&quot; style=&quot;display: block; position: absolute; right: 320px; top: 0px; width: 320px; height: 240px;&quot;&gt;&lt;/canvas&gt;
+&lt;div id=&quot;messageError&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;messageArea&quot; style=&quot;position: relative; left: 0px; top: 270px;text-align:center&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+
+if (!navigator.mediaDevices) 
+{
+	document.getElementById(&#39;messageError&#39;).innerHTML = &#39;Lo sentimos. La tecnolog&#237;a WebRTC no esta disponible.&#39;;
+}
+
+navigator.mediaDevices.getUserMedia(
+	{
+	 audio: false,
+	 video: {width: 320, height: 240}
+	}).then(gotStream)
+    .catch(errorStream);
+
+function gotStream(stream) 
+{
+	var camvideo = document.getElementById(&#39;monitor&#39;);
+	camvideo.srcObject = stream;
+	camvideo.onerror = function(e) 
+	{stream.stop();};
+	stream.onended = errorStream;
+}
+
+function errorStream(e) 
+{
+	var msg = &#39;No hay camara disponible o el c&#243;digo se ejecuta desde un servidor no seguro.&#39;;
+	if (e.code == 1) {   msg = &#39;El usuario ha denegado el acceso a la c&#225;mara.&#39;;   }
+	document.getElementById(&#39;messageError&#39;).innerHTML = msg;
+}
+&lt;/script&gt;
+
+
+&lt;script&gt;
+var monitor = document.getElementById( &#39;monitor&#39; );
+var videoCanvas = document.getElementById( &#39;videoCanvas&#39; );
+var videoContext = videoCanvas.getContext( &#39;2d&#39; );
+
+var buttonsLayerCanvas = document.getElementById( &#39;buttonsLayer&#39; );
+var buttonsLayerContext = buttonsLayerCanvas.getContext( &#39;2d&#39; );
+
+var blendCanvas  = document.getElementById( &quot;blendCanvas&quot; );
+var blendContext = blendCanvas.getContext(&#39;2d&#39;);
+
+var messageArea = document.getElementById( &quot;messageArea&quot; );
+
+videoContext.translate(320, 0);
+videoContext.scale(-1, 1);
+		
+videoContext.fillStyle = &#39;#005337&#39;;
+videoContext.fillRect( 0, 0, videoCanvas.width, videoCanvas.height );				
+
+var buttons = [];
+
+var button1 = new Image();
+button1.onload=function(){drawButton(0)};
+var buttonData1 = { name:&quot;wait&quot;, image:button1, x:64 + 10, y:10, w:32, h:32, pressed:false  };
+buttons.push( buttonData1 );
+button1.src =&quot;../data/graphics/ui/ico/wait-icon.png&quot;;
+
+var button2 = new Image();
+button2.onload=function(){drawButton(1)};
+var buttonData2 = { name:&quot;walking&quot;, image:button2, x: 32 + 10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData2 );
+button2.src =&quot;../data/graphics/ui/ico/walking-icon.png&quot;;
+
+var button3 = new Image();
+button3.onload=function(){drawButton(2)};
+var buttonData3 = { name:&quot;runing&quot;, image:button3, x:10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData3 );
+button3.src =&quot;../data/graphics/ui/ico/running-icon.png&quot;;
+
+var button4 = new Image();
+button4.onload=function(){drawButton(3)};
+var buttonData4 = { name:&quot;left&quot;, image:button4, x:320 - 96 - 10, y:10, w:32, h:32, pressed:false  };
+buttons.push( buttonData4 );
+button4.src =&quot;../data/graphics/ui/ico/left-icon.png&quot;;
+
+var button5 = new Image();
+button5.onload=function(){drawButton(4)};
+var buttonData5 = { name:&quot;forward&quot;, image:button5, x: 320 - 64 -10 , y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData5 );
+button5.src =&quot;../data/graphics/ui/ico/up-icon.png&quot;;
+
+var button6 = new Image();
+button6.onload=function(){drawButton(5)};
+var buttonData6 = { name:&quot;right&quot;, image:button6, x:320 - 32 - 10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData6 );
+button6.src =&quot;../data/graphics/ui/ico/right-icon.png&quot;;
+
+function drawButton(i){
+	buttonsLayerContext.drawImage( buttons[i].image, buttons[i].x, buttons[i].y, buttons[i].w, buttons[i].h );
+}
+
+var lastImageData;
+var currentImageData;
+
+function getCurrentImageData() 
+{	
+	videoContext.drawImage( monitor, 0, 0, videoCanvas.width, videoCanvas.height );
+	lastImageData = currentImageData;
+	currentImageData = videoContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height);
+	if (!lastImageData) lastImageData = currentImageData;
+}
+
+var blendedImageData = blendContext.createImageData(videoCanvas.width, videoCanvas.height);
+var blendedData= blendedImageData.data;
+for (var i = 0;i &lt; (blendedData.length);i+=4) 
+{
+	blendedData[i+3] = 0xFF;
+}
+
+function blend() 
+{
+	differenceAccuracy(blendedImageData.data, currentImageData.data, lastImageData.data);
+	blendContext.putImageData(blendedImageData, 0, 0);
+}
+
+function differenceAccuracy(target, data1, data2) 
+{
+	if (data1.length != data2.length) return null;
+	for (var i = 0;i &lt; (data1.length);i+=4) 
+	{
+		var diff=(fastAbs(data1[i] - data2[i]) &gt; 31 || fastAbs(data1[i+1] - data2[i+1]) &gt; 31 ||  fastAbs(data1[i+2] - data2[i+2]) &gt; 31)? 0xFF : 0;
+		target[i]   = diff;
+		target[i+1] = diff;
+		target[i+2] = diff;
+	}
+};
+function fastAbs(value) 
+{
+	return (value ^ (value &gt;&gt; 31)) - (value &gt;&gt; 31);
+}
+
+function checkAreas() 
+{
+	for (var b = 0; b &lt; buttons.length; b++)
+	{
+		var blendedData = blendContext.getImageData( buttons[b].x, buttons[b].y, buttons[b].w, buttons[b].h );
+		
+		var sum = 0;
+		var countPixels = blendedData.data.length * 0.25;
+		for (var i = 0;i &lt; (blendedData.data.length);i+=4) 
+		{
+			sum += blendedData.data[i];
+		}
+		var average = Math.round(sum / countPixels);
+		if (average &gt; 50) //20%
+		{
+			buttons[b].pressed=true;
+		} else {
+			buttons[b].pressed=false;
+		}
+	}
+}
+
+
+animate();
+
+var action=&quot;parados&quot;;
+var action2=&quot;adelante&quot;;
+
+function animate() 
+{
+    requestAnimationFrame( animate );
+	if ( monitor.readyState === monitor.HAVE_ENOUGH_DATA ) 	{
+
+		getCurrentImageData();	
+		blend();	
+		checkAreas();
+
+		if (buttonData3.pressed) {
+			action=&quot;corriendo&quot;;
+		} else if (buttonData2.pressed) {
+			action=&quot;andando&quot;;
+		} else if (buttonData1.pressed) {
+			action=&quot;parados&quot;;
+		};
+	
+		if (buttonData5.pressed) {
+			action2=&quot;adelante&quot;;
+		} else if (buttonData6.pressed) {
+			action2=&quot;la derecha&quot;;
+		} else if (buttonData4.pressed) {
+			action2=&quot;la izquierda&quot;;
+		}
+		var msg =&quot;Estamos &quot; + action;
+		if (action!=&quot;parados&quot;){
+			msg +=&quot; y vamos hacia &quot;+action2;
+		};	
+		messageArea.innerHTML = &quot;&lt;font size=&#39;+4&#39;&gt;&lt;b&gt;&quot; + msg + &quot;.&lt;/b&gt;&lt;/font&gt;&quot;;
+	}
+}
+
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

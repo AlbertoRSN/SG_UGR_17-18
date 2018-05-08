@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>04-detect-webgl-support.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - Detect WebGL Support&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;style&gt;
+
+        .big-message {
+            width: 80%;
+            height: auto;
+            margin: 0 auto;
+            padding: 5px;
+            text-align: center;
+            color: #33a933;
+            font-family: serif;
+            font-size: 40px;
+        }
+
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+ &lt;div class=&quot;big-message&quot; id=&quot;message&quot;&gt;
+ &lt;/div&gt;
+&lt;script&gt;
+	window.addEventListener(&quot;DOMContentLoaded&quot;, function(event) {
+        var hasGl = detectWebGL();
+		if (hasGl) {
+			document.getElementById(&quot;message&quot;).innerHTML = &quot;Your browser supports WebGL&quot;;
+		} else {
+			document.getElementById(&quot;message&quot;).innerHTML = &quot;Your browser NOT supports WebGL&quot;;
+			document.getElementById(&quot;message&quot;).style.color = &quot;red&quot;;
+		}
+    });
+
+
+    function detectWebGL() {
+
+        var testCanvas = document.createElement(&quot;canvas&quot;);
+        var gl = null;
+        try {
+            gl = testCanvas.getContext(&quot;webgl&quot;, {antialias: false, depth: false });
+        } catch (x) {
+            gl = null;
+        }
+		if (gl==null) {
+		
+		    try {
+				gl = testCanvas.getContext(&quot;experimental-webgl&quot;, {antialias: false, depth: false });
+			} catch (x) {
+				gl = null;
+			}
+		}
+		
+        if (gl) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+&lt;/script&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

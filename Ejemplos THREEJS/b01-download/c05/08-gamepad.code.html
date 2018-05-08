@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+    <link rel="stylesheet" href="../samples/css/code.css">
+    <script src="../frameworks/highlight/highlight.pack.js"></script>
+    <script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="../samples/js/code.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>08-gamepad.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge,chrome=1&quot;&gt;
+    &lt;title&gt;&lt;/title&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+    &lt;script src=&quot;../frameworks/jquery-2.0.3.min.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div style=&quot;text-align: center;&quot;&gt;
+        &lt;img src=&quot;standard_gamepad.svg&quot; style=&quot;width:100%;max-width:800px;&quot; /&gt;
+        &lt;div style=&quot;width:100%;max-width:400px;text-align:left;margin: auto;&quot;&gt;
+            &lt;div id=&quot;gamepadPrompt&quot;&gt;&lt;/div&gt;
+            &lt;div id=&quot;gamepadDisplay&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+        
+    &lt;script&gt;
+    var repGP;
+    var hasGP = false;
+    
+    function canGame() {
+        return &quot;getGamepads&quot; in navigator;
+    }
+
+    $(document).ready(function() {
+
+        if(canGame()) {
+
+            var prompt = &quot;Para empezar a usar el gamepad, con&#233;ctelo y presione cualquier bot&#243;n!&quot;;
+            $(&quot;#gamepadPrompt&quot;).text(prompt);
+            
+            $(window).on(&quot;gamepadconnected&quot;, function(e) {
+                hasGP = true;
+                console.log(&quot;connection event&quot;);
+                $(&quot;#gamepadPrompt&quot;).html(&quot;Gamepad conectado!&quot;);
+                startReportOnGamepad();
+            });
+
+            $(window).on(&quot;gamepaddisconnected&quot;, function(e) {
+                console.log(&quot;disconnection event&quot;);
+                $(&quot;#gamepadPrompt&quot;).text(prompt);
+                endReportOnGamepad()
+            });
+
+            //setup an interval for Chrome
+            var checkGP = window.setInterval(function() {
+                console.log(&#39;checkGP&#39;);
+                if(navigator.getGamepads()[0]) {
+                    if(!hasGP) {
+                        $(window).trigger(&quot;gamepadconnected&quot;,{gamepad:navigator.getGamepads()[0]});
+                    }
+                    window.clearInterval(checkGP);
+                }
+            }, 500);
+        }
+        
+    });
+    
+    function startReportOnGamepad(){
+        repGP = window.setInterval(reportOnGamepad,100);
+    }
+    function endReportOnGamepad() {
+        window.clearInterval(repGP);
+    }
+    
+    function reportOnGamepad() {
+        var gp = navigator.getGamepads()[0];
+        var html = &quot;&quot;;
+            html += &quot;&lt;b&gt;id:&lt;/b&gt; &quot;+gp.id+&quot;&lt;br/&gt;&quot;;
+            html += &quot;&lt;b&gt;mapping:&lt;b&gt; &quot;+gp.mapping+&quot;&lt;br/&gt;&quot;;
+        for(var i=0;i&lt;gp.buttons.length;i++) {
+            html+= &quot;&lt;b&gt;buttons[ &quot;+(i)+&quot;]:&lt;/b&gt; &quot;;
+            if(gp.buttons[i].pressed) html+= &quot; pulsado&quot;;
+            html+= &quot;&lt;br/&gt;&quot;;
+        }
+        
+        for(var i=0;i&lt;gp.axes.length; i++) {
+            html+= &quot;&lt;b&gt;axes[&quot;+i+&quot;]:&lt;/b&gt; &quot;+gp.axes[i]+&quot;&lt;br/&gt;&quot;;
+        }
+        
+        $(&quot;#gamepadDisplay&quot;).html(html);
+    }
+    &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

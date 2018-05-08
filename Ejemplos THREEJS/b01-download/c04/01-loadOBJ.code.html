@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>01-loadOBJ.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - load OBJ&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;script src=&quot;../frameworks/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/MTLLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/OBJLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/dat.gui.min.js&quot;&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+&lt;script&gt;
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    
+    var tower;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(50, 50);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        camera.position.x = 15;
+        camera.position.y = 37;
+        camera.position.z = 33;
+        camera.lookAt(scene.position);
+
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.camera.near = 0;
+        light.shadow.camera.far = 50; 
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x086113;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        loadOBJ (&quot;../data/models/castle/&quot;, &quot;tower1.mtl&quot;, &quot;tower1.obj&quot;,  scene, function (obj){
+            tower=obj;
+            render();
+        });
+        
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, &#39;rotationSpeed&#39;, -1, 1);
+        gui.add(controlObject, &#39;opacity&#39;, 0.1, 1);
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        tower.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material.transparent = true;
+                child.material.opacity = control.opacity;
+            }
+        });
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc, fFail) {
+        var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + &#39;% downloaded&#39;);
+                }
+        };
+
+        var onError = function (xhr) {
+            if (fFail) {fFail(xhr);}
+            console.log(&#39;ERROR&#39;);
+        };
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+
+                //Active shadows
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                              child.castShadow = true;
+                    }
+
+                });
+                object.castShadow = true;
+                object.position.set(0, 0, 0);
+
+                scene.add(object);
+                fSuc(object);
+   
+            }, onProgress, onError);
+
+        });
+    };
+    
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener(&#39;resize&#39;, handleResize, false);
+
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

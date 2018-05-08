@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - statistics</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.js"></script>
+    <script src="../frameworks/stats.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var stats;
+
+    var objects = [];
+    var rotationSpeed = 0.005;
+    var numberToAdd = 2000;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.position.x = 50;
+        camera.position.y = 50;
+        camera.position.z = 50;
+        camera.lookAt(scene.position);
+
+        document.body.appendChild(renderer.domElement);
+
+        for (var i = 0; i < numberToAdd; i++) {
+                        addCube();
+        }
+
+        stats = createStats();
+        document.body.appendChild(stats.domElement);
+            clock = new THREE.Clock();
+            window.addEventListener( 'resize', onWindowResize, false );
+        render();
+    }
+
+
+    function addCube() {
+        var cubeGeometry = new THREE.BoxGeometry(4 * Math.random(), 4 * Math.random(), 4 * Math.random());
+        var cubeMaterial = new THREE.MeshNormalMaterial({opacity: 0.5, transparent: true});
+        cubeMaterial.transparent = true;
+
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.set(100 * Math.random() - 50, 0, 100 * Math.random() - 50);
+        scene.add(cube);
+
+        objects.push(cube);
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+
+        var x = camera.position.x;
+        var z = camera.position.z;
+
+        camera.position.x = x * Math.cos(rotationSpeed) + z * Math.sin(rotationSpeed);
+        camera.position.z = z * Math.cos(rotationSpeed) - x * Math.sin(rotationSpeed);
+
+        camera.lookAt(scene.position);
+
+        requestAnimationFrame(render);
+
+        stats.update();
+    }
+
+    function createStats() {
+        var stats = new Stats();
+        stats.setMode(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+
+        return stats;
+    }
+    
+    function onWindowResize() {
+
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+    window.addEventListener("DOMContentLoaded", function(event) {
+            init();
+    });
+
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+
+</body>
+</html>

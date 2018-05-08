@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>The Five Planets</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style>
+        body {
+			width:100%;
+			height:100%;
+			padding:0;
+            margin:0;
+            overflow:hidden;
+        }
+    </style>
+	<link rel="stylesheet" type="text/css" href="../css/screen.css"/>
+	<link rel="stylesheet" type="text/css" href="../css/ui.css"/>
+	
+	<!-- LOAD JQUERY & REQUIERE -->
+	<script src="../frameworks/require.min.js"></script>
+    <script src="../frameworks/jquery-2.0.3.min.js"></script>
+	
+	<!-- LOAD THREE.JS -->
+    <script src="../frameworks/three.js" defer></script>
+	<script src="../frameworks/renders/projector.js" defer></script>
+    <script src="../frameworks/loaders/DDSLoader.js" defer></script>
+	<script src="../frameworks/loaders/MTLLoader.js" defer></script>
+	<script src="../frameworks/loaders/OBJLoader.js" defer></script>
+	<script src="../frameworks/loaders/ColladaLoader.js" defer></script>
+	<script src="../frameworks/loaders/collada/Animation.js" defer></script>
+	<script src="../frameworks/loaders/collada/AnimationHandler.js" defer></script>
+	<script src="../frameworks/loaders/collada/KeyFrameAnimation.js" defer></script>
+	
+	<!-- LOAD DAT.GUI & STATS-->
+    <script src="../frameworks/dat.gui.min.js" defer></script>
+	<script src="../frameworks/stats.js" defer></script>
+	
+	<!-- GAME FILES-->
+	<script src="../core/ui/ui_v02.js" defer></script>
+	<script src="../core/controls/controls_v02.js" defer></script>
+    <script src="../core/world/world_v01.js" defer></script>
+	<script src="../core/world/ground_v01.js" defer></script>
+	<script src="../core/world/sky_v01.js" defer></script>
+	<script src="../core/world/nature_v01.js" defer></script>
+	<script src="../core/entities/template3D_v01.js" defer></script>
+	<script src="../core/entities/entity3D_v03.js" defer></script>
+	<script src="../core/ai/ai_path_v01.js" defer></script>
+	<script src="../core/ai/ai_random_v01.js" defer></script>
+	<script src="../core/api/api_v01.js" defer></script>
+
+<script>
+
+$(document).ready(function () {
+	$RG.baseDirectory="../";
+	$UI.drawloading();
+    $UI.loading.setValue(0);
+    $UI.loading.show();
+	$WORLD.distance = 130;
+	$WORLD.init3D({}, function () {
+		$UI.loading.setValue(0.05);//5%
+		$RG.templates={
+			"castle_wall_a": {"model" : "../data/models/castle/wall_a.obj"},
+			"castle_wall_b": {"model" : "../data/models/castle/wall_b.obj"},
+			"castle_wall_c": {"model" : "../data/models/castle/wall_c.obj"},
+			"castle_gate_wall": {"model" : "../data/models/castle/gate_wall.obj"},
+			"castle_metal_gate": {"model" : "../data/models/castle/metal_gate.obj"},
+			"castle_tower1": {"model" : "../data/models/castle/tower1.obj"},
+			"castle_tower2": {"model" : "../data/models/castle/tower2.obj"},
+			"castle_tower3": {"model" : "../data/models/castle/tower3.obj"},
+			"house1": {"model": "../data/models/houses01/house1-01.obj"},
+			"house2": {"model": "../data/models/houses01/house1-02.obj"},
+			"house3": {"model": "../data/models/houses01/house1-03.obj"},
+			"house4": {"model": "../data/models/houses01/house1-04.obj"},
+			"well1": {"model": "../data/models/houses01/well-01.obj"},
+			"bench1": {"model": "../data/models/houses01/bench-01.obj"},
+			"house17": {"model": "../data/models/houses05/house5-01.obj"},
+			"house18": {"model": "../data/models/houses05/house5-02.obj"},
+			"house19": {"model": "../data/models/houses05/house5-03.obj"},
+			"house20": {"model": "../data/models/houses05/house5-04.obj"},
+			"house21": {"model": "../data/models/houses05/house5-05.obj"},
+			"house22": {"model": "../data/models/houses06/house6-01.obj"},
+			"house23": {"model": "../data/models/houses06/house6-02.obj"},
+			"house25": {"model": "../data/models/houses06/house6-03.obj"},
+			
+			"chest": {"model": "../data/models/objects/chest.obj", "scale":{"x":0.65,"y":0.65,"z":0.65}},
+			"money": {"model": "../data/models/objects/money.obj", "scale":{"x":0.5,"y":0.5,"z":0.5}},
+			"potion": {"model": "../data/models/objects/potion.obj", "scale":{"x":0.5,"y":0.5,"z":0.5}},
+			
+			"tree": {"model": "../data/models/nature/Forest_A_FirTree_01.obj","scale":{"x":0.016,"y":0.016,"z":0.016}},
+			"villager01": {"model": "../data/models/people/aldeano01.dae", "type":1, "animation":true, "ai":"PathAI", "scale":{"x":1.5,"y":1.5,"z":1.5}, "rotate":{"x":-90,"y":0,"z":0}},
+			"aliendog": {"model": "../data/models/monsters/aliendog.dae", "type":1, "animation":true, "ai":"RandomAI", "scale":{"x":0.05,"y":0.05,"z":0.05}, "rotate":{"x":-90,"y":0,"z":-90}}
+		}
+		$WORLD.map = {
+		"x":256,
+		"z":256,
+		"startPosX":126,
+		"startPosZ":145,
+		"ground": {
+			"type":"basic",
+			"texture":"../data/graphics/textures/terrain/grass1.jpg",
+			"resX":2,
+			"resY":2
+		},
+		"sky": {
+			"type":"skysphere",
+			"colorAmbient" : "rgb(90, 90, 90)",
+			"intensityAmbient" : 0.5,
+			"sunlightcolor" : "rgb(255, 255, 255)",
+			"sunlightposition": {"x":10, "y":20, "z":0},
+			"sunlightintensity" : 1,
+			"texture":"../data/graphics/textures/sky/skydome.jpg",
+			"fogColor": "rgb(225, 225, 225)",
+			"fogNear":70,
+			"fogFar":130
+		},
+			
+		"nature": {
+				"type":"basic",
+				"patterns": {
+					"bushes":{
+						"freqX":5,
+						"freqZ":5,
+						"elements":[
+							{"object":"../data/graphics/textures/vegetation/grass.png","width":1.5,"height":1.5},
+							{"object":"../data/graphics/textures/vegetation/struik.png","width":1.5,"height":1.5}
+						]
+					},
+					"hightTrees":{
+						"freqX":12,
+						"freqZ":12,
+						"elements":[
+							{"object":"../data/graphics/textures/vegetation/tree06.png","width":10,"height":20.68},
+							{"object":"../data/graphics/textures/vegetation/tree07.png","width":12,"height":22.43}
+						]
+					}
+					
+				},
+				"zones": [
+					{"pattern":"hightTrees","minX":50,"minZ":60,"maxZ":260,"maxX":118},
+					{"pattern":"bushes","minX":20,"minZ":50,"maxZ":260,"maxX":117},
+					
+					{"pattern":"hightTrees","minX":110,"minZ":40,"maxZ":110,"maxX":200},
+					{"pattern":"bushes","minX":110,"minZ":80,"maxZ":113,"maxX":140},
+					
+					{"pattern":"hightTrees","minX":0,"minZ":217,"maxZ":280,"maxX":230}
+				]
+			
+		 }, 
+		
+		 "map3D": [
+			{ "template": "castle_wall_c", "x": 214, "z": 110, "rY": -90 , "coment":"Size X:120-230, z:110-215"},
+			{ "template": "castle_tower2", "x": 210, "z": 110 },
+			{ "template": "castle_wall_a", "x": 199, "z": 110, "rY": -90 },
+			{ "template": "castle_tower1", "x": 188, "z": 110, "rY": -90  },
+			{ "template": "castle_gate_wall", "x": 177, "z": 110, "rY": -90 },
+			{ "template": "castle_metal_gate", "x": 177, "z": 110, "rY": -90 },
+			{ "template": "castle_tower1", "x": 166, "z": 110, "rY": -90  },
+			{ "template": "castle_wall_a", "x": 155, "z": 110, "rY": -90 },
+			{ "template": "castle_tower2", "x": 143, "z": 110 },
+
+			{ "template": "castle_wall_c", "x": 120, "z": 129},
+			{ "template": "castle_tower1", "x": 120, "z": 134},
+			{ "template": "castle_gate_wall", "x": 120, "z": 145},
+			{ "template": "castle_metal_gate", "x": 120, "z": 145, "y":0},
+			{ "template": "castle_tower1", "x": 120, "z": 156},
+			{ "template": "castle_wall_b", "x": 120, "z": 173},
+			{ "template": "castle_tower3", "x": 120, "z": 192},
+			{ "template": "castle_wall_c", "x": 140, "z": 215, "rY": 90},
+
+			{ "template": "castle_tower2", "x": 144, "z": 215},
+			{ "template": "castle_wall_b", "x": 157, "z": 215, "rY": 90 },
+			{ "template": "castle_tower2", "x": 176, "z": 215},
+			{ "template": "castle_wall_b", "x": 190, "z": 215, "rY": 90 },
+			{ "template": "castle_tower2", "x": 210, "z": 215},
+			{ "template": "castle_wall_c", "x": 233, "z": 199, "rY": 180 },
+	
+			{ "template": "castle_tower2", "x": 233, "z": 132},
+			{ "template": "castle_wall_b", "x": 233, "z": 150, "rY": 180 },
+			{ "template": "castle_tower2", "x": 233, "z": 165},
+			{ "template": "castle_wall_b", "x": 233, "z": 185, "rY": 180 },
+			{ "template": "castle_tower2", "x": 233, "z": 199},
+
+			{ "template": "house1", "x": 155, "z": 150, "rY": -25,  "comment" : "houses01" },
+			{ "template": "well1", "x": 135, "z": 146, "rY": -45, "interact":"$RG.say('He encontrado una moneda!')" },
+			{ "template": "bench1", "x": 145, "z": 153, "rY": -25 },
+			{ "template": "house22", "x": 134, "z": 130,"rY": 110 },
+			{ "template": "house23", "x": 150, "z": 125,"rY": 45 },
+			{ "template": "house4", "x": 170, "z": 132, "rY": -25},
+
+			{ "template": "house17", "x": 135, "z": 162, "rY": -100,  "comment" : "houses05" },
+			{ "template": "house18", "x": 154, "z": 172,"rY": -45},
+			{ "template": "house19", "x": 170, "z": 170,"rY": -55 },
+			{ "template": "house20", "x": 174, "z": 155,"rY": -35 },
+			{ "template": "house21", "x": 178, "z": 142,"rY": 45 },
+
+			{ "template": "house22", "x": 133, "z": 180,"rY": 200, "comment" : "houses06" },
+			{ "template": "house3", "x": 148, "z": 190, "rY": -15 },
+			{ "template": "house2", "x": 168, "z": 190, "rY": 20 },
+			{ "template": "house25", "x": 185, "z": 190, "rY": -5 },
+			
+			{ "template": "tree", "x": 145, "z": 141 },
+			{ "template": "tree", "x": 146, "z": 166 },
+			
+			{ "template": "villager01", "x": 139, "z": 144, "path":[[171,0,131],[164,0,130],[159,0,130],[156,0,134],[149,0,141],[145,0,145],[139,0,150],[129,0,149],[127,0,144]
+			,[133,0,140],[169,0,131],[140,0,138],[144,0,135],[145,0,131],[146,0,129],[147,0,128],[149,0,126],[148,0,128],[144,0,130],[142,0,126],[141,0,121],[149,0,117]
+			,[160,0,121],[136,0,129],[166,0,130],[169,0,131]]},
+			{ "template": "villager01", "x": 140, "z": 145, "path":[[135,0,133],[136,0,136],[131,0,142],[132,0,152],[141,0,152],[145,0,163],[144,0,173],[142,0,184],[138,0,190]
+			,[127,0,191.5],[120.5,0,191.5],[120.5,0,159],[121,0,156],[128,0,156],[133,0,150],[132,0,143],[137,0,138],[136,0,134]]},
+			{ "template": "villager01", "x": 140, "z": 145, "path":[[135,0,179],[136,0,179],[140,0,177],[152,0,181],[156,0,185],[157,0,190],[160,0,194],[163,0,192],[167,0,190]
+			,[172,0,189],[176,0,188],[179,0,190],[180,0,190],[183,0,190],[185,0,190]]},
+			
+
+			{ "template": "aliendog", "x": 90, "z": 140, "minX":85,"maxX":111,"minZ":117,"maxZ":140},
+			{ "template": "aliendog", "x": 100, "z": 141, "minX":85,"maxX":111,"minZ":140,"maxZ":163},
+			
+			{ "template": "aliendog", "x": 105, "z": 149, "minX":90,"maxX":110,"minZ":132,"maxZ":150},
+			
+			{ "template": "chest", "x": 140, "y":0.65, "z": 160, "rY": 75, "interact":"$RG.say('El baúl está vacio!')" },
+			{ "template": "chest", "x": 132, "y":0.65, "z": 137, "rY": -75, "interact":"$RG.say('El baúl está vacio!')" },
+			{ "template": "money", "x": 152, "y":0.18, "z": 141, "interact":"$RG.say('He encontrado un montón de monedas!')" },
+			{ "template": "potion", "x": 155, "y":0.25, "z": 167,  "interact":"$RG.say('He encontrado una poción')" }
+			
+		]
+	};
+		
+		$UI.draw();
+		$WORLD.showStats();		
+		$WORLD.drawGround();
+		$WORLD.drawSky();
+		$WORLD.drawNature();
+		
+		$RG.loadTemplates( function() {
+
+			var elements=$WORLD.map.map3D.length;
+			for (var i=0;i<elements;i++){
+			
+				var props=$WORLD.map.map3D[i];
+				var ent=new $RG.Entity3D(props);
+				ent.addToWorld();
+				$UI.loading.setValue( ((i/elements)*0.20) +0.80);
+			}
+			
+			var path=new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0/2, 2, 100/2),
+			new THREE.Vector3(10/2, 2, 80/2),
+            new THREE.Vector3(30/2, 2, 110/2),
+            new THREE.Vector3(50, 2, 0/2),
+            new THREE.Vector3(60/2, 2, 0/2),
+            new THREE.Vector3(70/2, 2, 100/2),
+            new THREE.Vector3(85/2, 2, 55/2),
+            new THREE.Vector3(100/2, 2, 65/2),
+            new THREE.Vector3(0/2, 2, 100/2)])
+
+			$WORLD.camera.position.set(126,2,145);
+			$WORLD.controls = new $CONTROLS.FirstPersonControls ($WORLD.camera,document,"../data/graphics/ui/ico/spyhole.png");
+			$WORLD.controls.verticalMin = -30;
+			$WORLD.controls.verticalMax = +30;
+			$WORLD.controls.minX=124;
+			$WORLD.controls.minZ=117;
+			$WORLD.controls.maxX=226;
+			$WORLD.controls.maxZ=209;
+			$WORLD.controls.showPosition();
+			$WORLD.addToListUpdate ($WORLD.controls);
+
+			setTimeout(function() {
+				$WORLD.startAnimation();
+				$UI.loading.hide();
+				},500
+			)
+		},function () {
+			//error
+		},function (template,i,elements) {
+			//Calculo un 75% para la carga de las plantillas
+			$UI.loading.setValue( ((i/elements)*0.75) +0.05);
+		}
+		);
+	});
+})
+			
+</script>
+<link rel="stylesheet" href="../samples/css/sample.css">
+<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+<div id="sample-info-panel">
+	Q/E:Movimiento hacia la izquierda/derecha. <br>
+	I/Botón derecho ratón: Interacturar con objeto. <br>
+	A/D o Flecha derecha/izquierda - Giro hacia la derecha/izquierda.<br>
+	Inicio/Fin: Giro cabeza hacia arriba o abajo.<br>
+	W/S/ o Flecha arriba/abajo: Adelante/Atras.<br>
+	SHIFT:Correr.<br>
+	GAMEPAD: Joystick izquierdo - Movimiento / Joystick derecho - Giro cabeza.<br>
+	GAMEPAD: Botón 4 - correr / Botón 5 - interactuar.<br>
+</div>
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+<div id="lyr_loading">
+	<div id="lyr_loading_background"></div>
+	<div id="lyr_loading_logo" class="ui_logo"></div>
+</div>
+</body>
+</html>

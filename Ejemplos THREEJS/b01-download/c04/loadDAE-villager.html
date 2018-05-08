@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl - controls</title>
+	<meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+	<script src="../frameworks/loaders/ColladaLoader.js"></script>
+	<script src="../frameworks/loaders/collada/Animation.js"></script>
+	<script src="../frameworks/loaders/collada/AnimationHandler.js"></script>
+	<script src="../frameworks/loaders/collada/KeyFrameAnimation.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+	var clock;
+    var control;
+	
+	var monster;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+		renderer.physicallyCorrectLights = true;
+		renderer.gammaInput = true;
+		renderer.gammaOutput = true;
+		renderer.shadowMap.enabled = true;
+		renderer.toneMapping = THREE.ReinhardToneMapping;
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(50, 50);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+		scene.add(plane);
+
+        camera.position.x = 15;
+        camera.position.y = 37;
+        camera.position.z = 33;
+        camera.lookAt(scene.position);
+
+
+		var ambient = new THREE.AmbientLight(0xffffff,0.3);
+		scene.add(ambient);
+		
+		var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+		light.position.set(10, 20 , 20); 
+		light.castShadow = true;
+		light.shadow.mapSize.width = 3 * 512; 
+		light.shadow.mapSize.height = 3 * 512;
+		light.shadow.bias = 0.1;
+		light.shadow.camera.top = 25; //X
+		light.shadow.camera.right = 25;
+		light.shadow.camera.left = -25;
+		light.shadow.camera.bottom = -25;
+		light.shadow.camera.visible = true;
+		scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x086113;
+        };
+        addControlGui(control);
+
+		clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+		loadDAE ("../data/models/people/", "aldeano01.dae",  scene, function (obj){
+			monster=obj;
+			render();
+		});
+        
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+        gui.add(controlObject, 'opacity', 0.1, 1);
+    }
+
+
+    function render() {
+
+		var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+		monster.traverse(function (child) {
+			if (child instanceof THREE.Mesh) {
+				child.material.transparent = true;
+				child.material.opacity = control.opacity;
+			}
+        });
+
+		//animaciones
+        THREE.AnimationHandler.update(delta);
+		
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+	function loadDAE (path, fileOBJ, scene, fSuc) {
+        var loader = new THREE.ColladaLoader();
+        loader.load(path+fileOBJ, function (collada) {
+			var object = collada.scene;
+           object.scale.x = object.scale.y = object.scale.z = 10; //Corregir escala
+         //   object.rotateY(-Math.PI / 2); //coregir la orientación cabeza
+		//	object.rotateX(-Math.PI / 2); //coregir la orientación horizontal
+		object.rotateX(-Math.PI / 2);
+		
+         //   object.updateMatrix();
+			object.position.set(0, 0, 0);
+					
+			//Active shadows
+			object.traverse(function (child) {
+				if (child instanceof THREE.Mesh) {
+					child.castShadow = true;
+                }
+				if (child instanceof THREE.SkinnedMesh) {
+                    var animation = new THREE.Animation(child, child.geometry.animation);
+                    animation.play();
+                }
+
+			});
+			object.castShadow = true;
+
+            scene.add(object);
+			fSuc(object);
+   
+        });
+    };
+	
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<body>
+
+
+</body>
+</html>

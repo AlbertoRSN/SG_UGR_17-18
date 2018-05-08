@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+    <link rel="stylesheet" href="../samples/css/code.css">
+    <script src="../frameworks/highlight/highlight.pack.js"></script>
+    <script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="../samples/js/code.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>11-raycaster-drag-drop.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - draggable objects&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0&quot;&gt;
+    &lt;style&gt;
+        body {
+            margin: 0px;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+    &lt;script src=&quot;../frameworks/three.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/stats.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/MTLLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/OBJLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/controls/TrackballControls.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;script&gt;
+    var container, stats;
+    var camera, controls, scene, renderer;
+    var objects = [];
+    var plane = new THREE.Plane();
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    var offset = new THREE.Vector3();
+    var intersection = new THREE.Vector3();
+    var SELECTED, DRAGGED, CHEST;
+
+    init();
+
+    function init() {
+
+        container = document.createElement( &#39;div&#39; );
+        document.body.appendChild( container );
+
+        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 6;
+        camera.position.y = 5;
+
+        controls = new THREE.TrackballControls( camera );
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+
+        scene = new THREE.Scene();
+
+        scene.add( new THREE.AmbientLight( 0x505050 ) );
+
+        var light = new THREE.SpotLight( 0xffffff, 1.5 );
+        light.position.set( 0, 500, 2000 );
+        scene.add( light );
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setClearColor( 0xf0f0f0 );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.sortObjects = false;
+
+        container.appendChild( renderer.domElement );
+
+        stats = new Stats();
+        container.appendChild( stats.dom );
+
+        renderer.domElement.addEventListener( &#39;mousemove&#39;, onDocumentMouseMove, false );
+        renderer.domElement.addEventListener( &#39;mousedown&#39;, onDocumentMouseDown, false );
+        renderer.domElement.addEventListener( &#39;mouseup&#39;, onDocumentMouseUp, false );
+
+        window.addEventListener( &#39;resize&#39;, onWindowResize, false );
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;potion.mtl&quot;, &quot;potion.obj&quot;,  scene, function (potion){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;potion2.mtl&quot;, &quot;potion.obj&quot;,  scene, function (potion2){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;potion3.mtl&quot;, &quot;potion.obj&quot;,  scene, function (potion3){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;money.mtl&quot;, &quot;money.obj&quot;,  scene, function (money){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;axe.mtl&quot;, &quot;axe.obj&quot;,  scene, function (axe){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;hammer.mtl&quot;, &quot;hammer.obj&quot;,  scene, function (hammer){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;shield.mtl&quot;, &quot;shield.obj&quot;,  scene, function (shield){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;sword.mtl&quot;, &quot;sword.obj&quot;,  scene, function (sword){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;staff.mtl&quot;, &quot;staff.obj&quot;,  scene, function (staff){
+        loadOBJ (&quot;../data/models/objects/&quot;, &quot;chest.mtl&quot;, &quot;chest.obj&quot;,  scene, function (chest){
+            var object = shield.clone();
+            object.position.x = Math.random() * 20 - 10;
+            object.position.z = Math.random() * 10 - 10;
+            object.rotation.z =  Math.PI/2;
+            object.rotation.y = Math.random() * 2 * Math.PI;
+            scene.add( object );
+            objects.push( object );
+            object = staff.clone();
+            object.position.x = Math.random() * 20 - 10;
+            object.position.z = Math.random() * 10 - 10;
+            object.rotation.z =  Math.PI/2;
+            object.rotation.y = Math.random() * 2 * Math.PI;
+            scene.add( object );
+            objects.push( object )
+            object = sword.clone();
+            object.position.x = Math.random() * 20 - 10;
+            object.position.z = Math.random() * 10 - 10;
+            object.rotation.z =  Math.PI/2;
+            object.rotation.y = Math.random() * 2 * Math.PI;
+            scene.add( object );
+            objects.push( object )
+            for ( var i = 0; i &lt; 2; i ++ ) {
+                object = axe.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.z =  Math.PI/2;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            }
+            for ( var i = 0; i &lt; 2; i ++ ) {
+                object = hammer.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.z =  Math.PI/2;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            }
+                    
+            for ( var i = 0; i &lt; 4; i ++ ) {
+                object = potion.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            }
+
+            for ( var i = 0; i &lt; 4; i ++ ) {
+                object = potion2.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            }
+                    
+            for ( var i = 0; i &lt; 4; i ++ ) {
+                object = potion3.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            }
+
+            for ( var i = 0; i &lt; 4; i ++ ) {
+                object = money.clone();
+                object.position.x = Math.random() * 20 - 10;
+                object.position.z = Math.random() * 10 - 10;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                scene.add( object );
+                objects.push( object );
+            };
+    
+            CHEST=chest;
+            chest.name=&quot;chest&quot;;
+            object = chest;
+            object.position.x = 0;
+            object.position.z = 0;
+            object.rotation.y =  -Math.PI/2;
+            scene.add( object );
+            objects.push( object );
+
+            animate();
+                
+        });});});});});});});});});});
+
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    }
+
+    function animate() {
+        requestAnimationFrame( animate );
+        render();
+        stats.update();
+    }
+
+    function render() {
+        controls.update();
+        renderer.render( scene, camera );
+    }
+            
+    function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc, fFail) {
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+                var mesh=object;
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                        mesh=child;
+                    }
+                });
+                fSuc(mesh);
+            });
+        });
+    };
+	
+    function onDocumentMouseMove( event ) {
+        event.preventDefault();
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        raycaster.setFromCamera( mouse, camera );
+
+        if ( DRAGGED ) {
+            if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+                DRAGGED.position.copy( intersection.sub( offset ) );
+            }
+            return;
+        }
+
+        var intersects = raycaster.intersectObjects( objects );
+        if ( intersects.length &gt; 0 ) {
+            if ( SELECTED != intersects[ 0 ].object ) {
+                SELECTED = intersects[ 0 ].object;
+                plane.setFromNormalAndCoplanarPoint(
+                    camera.getWorldDirection( plane.normal ),
+                    SELECTED.position );
+            }
+            container.style.cursor = &#39;pointer&#39;;
+        } else {
+            SELECTED = null;
+            container.style.cursor = &#39;auto&#39;;
+        }
+    }
+
+    function onDocumentMouseDown( event ) {
+        event.preventDefault();
+        if (SELECTED) {
+            controls.enabled = false;
+            DRAGGED = SELECTED;
+            if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+                offset.copy( intersection ).sub( DRAGGED.position );
+            }
+            container.style.cursor = &#39;move&#39;;
+        }
+    }
+
+    function onDocumentMouseUp( event ) {
+        event.preventDefault();
+        controls.enabled = true;
+        if ( DRAGGED ) {
+            if (DRAGGED.name!=&quot;chest&quot;) {
+                var intersects = raycaster.intersectObject( CHEST );
+                if ( intersects.length &gt; 0 ) {
+                    scene.remove(DRAGGED)
+                }
+            }
+            DRAGGED = null;
+        }
+        container.style.cursor = &#39;auto&#39;;
+    }
+    &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

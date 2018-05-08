@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Non-PointerLock vs PointerLock</title>
+    <script src="../frameworks/jquery-2.0.3.min.js"></script>
+	<link rel="stylesheet" href="../samples/css/sample.css">
+	<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+<table>
+<tr>
+<td style="text-align: center;font-weight: bold;font-size: large;">
+Sin usar el API de bloqueo del ratón
+</td>
+<td style="text-align: center;font-weight: bold;font-size: large;">
+Usando el API de bloqueo del ratón
+</td>
+</tr>
+<tr>
+<td>
+<canvas id="noPointerLock" width="400" height="400" style="background: #101039; cursor: none;"></canvas>
+</td>
+<td>
+<canvas id="pointerLock" width="400" height="400" style="background: #101039;"></canvas>
+</td>
+</tr>
+</table>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setupPointerLock();
+        setupNoPointerLock()
+
+    })
+
+    function setupPointerLock() {
+
+        document.addEventListener('pointerlockchange', changeCallback, false);
+        document.addEventListener('mozpointerlockchange', changeCallback, false);
+        document.addEventListener('webkitpointerlockchange', changeCallback, false);
+
+        $("#pointerLock").click(function () {
+            var canvas = $("#pointerLock").get()[0];
+            canvas.requestPointerLock = canvas.requestPointerLock ||
+                    canvas.mozRequestPointerLock ||
+                    canvas.webkitRequestPointerLock;
+            canvas.requestPointerLock();
+        });
+
+    }
+
+    function changeCallback(e) {
+        var canvas = $("#pointerLock").get()[0];
+        if (document.pointerLockElement === canvas ||
+                document.mozPointerLockElement === canvas ||
+                document.webkitPointerLockElement === canvas) {
+            document.addEventListener("mousemove", moveCallback, false);
+        } else {
+
+            document.removeEventListener("mousemove", moveCallback, false);
+
+            entryCoordinates = {x:-1, y:-1};
+        }
+    };
+
+    var entryCoordinates = {x:-1, y:-1};
+    function moveCallback(e) {
+
+        var canvas = $("#pointerLock").get()[0];
+        var ctx = canvas.getContext('2d');
+
+        if (entryCoordinates.x == -1) {
+            entryCoordinates = getPosition(canvas, e);
+        }
+
+        var movementX = e.movementX ||
+                e.mozMovementX ||
+                e.webkitMovementX ||
+                0;
+
+        var movementY = e.movementY ||
+                e.mozMovementY ||
+                e.webkitMovementY ||
+                0;
+
+        entryCoordinates.x = entryCoordinates.x + movementX;
+        entryCoordinates.y = entryCoordinates.y + movementY;
+
+        if (entryCoordinates.x > $('#pointerLock').width() -65) {
+            entryCoordinates.x = $('#pointerLock').width()-65;
+        } else if (entryCoordinates.x < 0) {
+            entryCoordinates.x = 0;
+        }
+
+        if (entryCoordinates.y > $('#pointerLock').height() - 85) {
+            entryCoordinates.y = $('#pointerLock').height() - 85;
+        } else if (entryCoordinates.y < 0) {
+            entryCoordinates.y = 0;
+        }
+
+        var direction = 0;
+        if (movementX > 0) {
+            direction = 1;
+        } else if (movementX < 0) {
+            direction = -1;
+        }
+
+        ctx.clearRect(0,0,400,400);
+        generateStars(ctx);
+        showShip(entryCoordinates.x, entryCoordinates.y, direction,ctx);
+    }
+
+
+
+    function setupNoPointerLock() {
+
+        var canvas2 = $("#noPointerLock").get()[0];
+        var context2 = canvas2.getContext('2d');
+
+        var entryCoordinates2 = {x:-1,y:-1};
+
+        canvas2.addEventListener('mousemove', function(evt) {
+
+            if (entryCoordinates2.x == -1) {
+                entryCoordinates2 = getPosition(canvas2,evt);
+            }
+
+            var newPos = getPosition(canvas2, evt);
+            movementX = newPos.x - entryCoordinates2.x;
+
+            var direction = 0;
+            if (movementX > 0) {
+                direction = 1;
+            } else if (movementX < 0) {
+                direction = -1;
+            }
+
+            context2.clearRect(0,0,400,400);
+            generateStars(context2);
+            showShip(newPos.x-32, newPos.y-42, direction, context2);
+            entryCoordinates2 = newPos;
+
+        });
+    }
+
+    sprites = new Image();
+    sprites.src = '..\\data\\graphics\\sprites\\ship.png';
+    function showShip(ship_x, ship_y, direction, ctx) {
+
+        if (direction == -1) {
+            srcX = 156;
+        } else if (direction == 1) {
+            srcX = 83;
+        } else if (direction == 0) {
+            srcX = 10;
+        }
+
+        srcY = 0;
+        ship_w = 65;
+        ship_h = 85;
+
+       ctx.drawImage(sprites, srcX, srcY, ship_w, ship_h, ship_x, ship_y, ship_w, ship_h);
+    }
+
+    function generateStars(ctx) {
+        for (var i = 0; i < 50; i++) {
+
+            x = Math.random() * 400;
+            y = Math.random() * 400;
+            radius = Math.random() * 3;
+
+            ctx.fillStyle = "#FFF";
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    function getPosition(canvas, event) {
+        var x = new Number();
+        var y = new Number();
+
+        if (event.x != undefined && event.y != undefined) {
+            x = event.x;
+            y = event.y;
+        }
+        else
+        {
+            x = event.clientX + document.body.scrollLeft +
+                    document.documentElement.scrollLeft;
+            y = event.clientY + document.body.scrollTop +
+                    document.documentElement.scrollTop;
+        }
+
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
+
+        return {x:x, y:y};
+    }
+
+</script>
+
+
+
+
+
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

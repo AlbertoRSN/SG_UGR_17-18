@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HTML5 - Gamepad</title>
+	<meta charset="utf-8">
+	<script src="../frameworks/jquery-2.0.3.min.js"></script>
+	<link rel="stylesheet" href="../samples/css/sample.css">
+	<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+	<!-- butons -->
+	<div id="sample-info">
+	</div>
+	<div id="sample-buttons" class="sample-btn">
+	</div>
+
+	<div style="text-align: center;">
+		<img src="standard_gamepad.svg" style="width:100%;max-width:800px;" />
+		<div style="width:100%;max-width:400px;text-align:left;margin: auto;">
+			<div id="gamepadPrompt"></div>
+			<div id="gamepadDisplay"></div>
+		</div>
+	</div>
+		
+	<script>
+	var repGP;
+	var hasGP = false;
+	
+	function canGame() {
+		return "getGamepads" in navigator;
+	}
+
+	$(document).ready(function() {
+
+		if(canGame()) {
+
+			var prompt = "Para empezar a usar el gamepad, conéctelo y presione cualquier botón!";
+			$("#gamepadPrompt").text(prompt);
+			
+			$(window).on("gamepadconnected", function(e) {
+				hasGP = true;
+				console.log("connection event");
+				$("#gamepadPrompt").html("Gamepad conectado!");
+				startReportOnGamepad();
+			});
+
+			$(window).on("gamepaddisconnected", function(e) {
+				console.log("disconnection event");
+				$("#gamepadPrompt").text(prompt);
+				endReportOnGamepad()
+			});
+
+			//setup an interval for Chrome
+			var checkGP = window.setInterval(function() {
+				console.log('checkGP');
+				if(navigator.getGamepads()[0]) {
+					if(!hasGP) {
+						$(window).trigger("gamepadconnected",{gamepad:navigator.getGamepads()[0]});
+					}
+					window.clearInterval(checkGP);
+				}
+			}, 500);
+		}
+		
+	});
+	
+	function startReportOnGamepad(){
+		repGP = window.setInterval(reportOnGamepad,100);
+	}
+	function endReportOnGamepad() {
+		window.clearInterval(repGP);
+	}
+	
+	function reportOnGamepad() {
+		var gp = navigator.getGamepads()[0];
+		var html = "";
+			html += "<b>id:</b> "+gp.id+"<br/>";
+			html += "<b>mapping:<b> "+gp.mapping+"<br/>";
+		for(var i=0;i<gp.buttons.length;i++) {
+			html+= "<b>buttons[ "+(i)+"]:</b> ";
+			if(gp.buttons[i].pressed) html+= " pulsado";
+			html+= "<br/>";
+		}
+		
+		for(var i=0;i<gp.axes.length; i++) {
+			html+= "<b>axes["+i+"]:</b> "+gp.axes[i]+"<br/>";
+		}
+		
+		$("#gamepadDisplay").html(html);
+	}
+	</script>
+	
+	</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Repeat texture</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load("../data/graphics/textures/wall/floor.jpg");
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(5,5);
+        
+        var wallTexture=textureLoader.load("../data/graphics/textures/wall/wall.jpg");
+        wallTexture.wrapS=THREE.RepeatWrapping;
+        wallTexture.wrapT=THREE.RepeatWrapping;
+        wallTexture.repeat.set(3,2);
+        
+        //THREE.ClampToEdgeWrapping
+        var planeGeometry = new THREE.PlaneGeometry(35, 35);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+        scene.add(plane);
+        
+        var wallGeometry = new THREE.BoxGeometry(20, 6, 1);
+        var wallMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:wallTexture, transparent:true, opacity:1});
+        var wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall.position.y = 3;
+        wall.castShadow = true;
+        scene.add(wall);        
+        var wall1=wall.clone()
+        scene.add(wall1);
+        var wall2=wall.clone()
+        scene.add(wall2);
+        var wall3=wall.clone()
+        scene.add(wall3);
+        
+        wall.position.z=-10;
+        wall1.position.z=10;
+        wall2.position.x=-9.5;
+        wall3.position.x=9.5;
+        wall2.rotation.y=0.5 * Math.PI;
+        wall3.rotation.y=0.5 * Math.PI;
+
+        camera.position.x = 17;
+        camera.position.y = 19;
+        camera.position.z = 14;
+        camera.lookAt(scene.position);
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.5);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 2, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.bias = 0.1;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x90abed;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

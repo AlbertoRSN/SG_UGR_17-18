@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - fog</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/loaders/MTLLoader.js"></script>
+    <script src="../frameworks/loaders/OBJLoader.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    var distance=125;    
+
+    function init() {
+            
+        control = new function() {
+            this.color = 0xffffff;
+            this.near= 5;
+            this.far = (distance - distance / 4);
+        };
+        addControlGui(control);
+        
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, distance);
+        
+        renderer = new THREE.WebGLRenderer();
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        
+        scene.fog = new THREE.Fog(0xffffff, 5, (distance - distance / 4)); 
+        renderer.setClearColor(scene.fog.color, 1);
+
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load("../data/graphics/textures/terrain/grass1.jpg");
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(160,160);
+        
+        var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+
+        camera.position.x = -10;
+        camera.position.y = 3;
+        camera.position.z = -400;
+        camera.lookAt(new THREE.Vector3(0,3,400));
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        scene.add(light);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        loadJSON ("../data/models/json/house.json", scene, function (obj){
+            obj.material.fog = true;
+            for (var x=-80;x<80;x+=40) {
+                for (var z=-400;z<400;z+=20) {
+                    var house=obj.clone();
+                    house.position.set(x+Math.random()*15,0,z+Math.random()*15);
+                    house.rotation.y=Math.random()*6;
+                    scene.add(house)
+                }            
+            }
+            
+            render();
+        });
+		window.addEventListener('resize', handleResize, false);
+        
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.addColor(controlObject, 'color').name('color fog').onChange(function(value) {
+            scene.fog.color=new THREE.Color(value);
+            renderer.setClearColor(scene.fog.color, 1);
+        });
+        gui.add(controlObject, 'near', 0, 250);        
+        gui.add(controlObject, 'far', 0, 250);
+    }
+
+    var dir=1;
+    function render() {
+
+        var delta =  clock.getDelta();
+
+        camera.position.z += dir*4*delta;
+        if  (camera.position.z>200) {
+            dir=-1;
+        }
+        if  (camera.position.z<-390) {
+            dir=1;
+        }
+        
+        scene.fog.near=control.near;
+        scene.fog.far=control.far;
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function loadJSON (fileOBJ, scene, fSuc) {
+         var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + '% downloaded');
+                }
+        };
+
+        var onError = function (xhr) { 
+            console.log('ERROR');
+        };
+        var loader = new THREE.JSONLoader();
+        loader.load(fileOBJ, function(model, material) {
+            var mesh = new THREE.Mesh(model, material[0]);
+            scene.add(mesh);
+            fSuc(mesh);
+        }, onProgress, onError);
+
+    };
+    
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+
+</script>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

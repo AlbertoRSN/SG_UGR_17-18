@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>three.js webgl - draggable objects</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			margin: 0px;
+			overflow: hidden;
+		}
+	</style>
+	<script src="../frameworks/three.js"></script>
+	<script src="../frameworks/stats.js"></script>
+	<script src="../frameworks/loaders/MTLLoader.js"></script>
+	<script src="../frameworks/loaders/OBJLoader.js"></script>
+	<script src="../frameworks/controls/TrackballControls.js"></script>
+		
+	<link rel="stylesheet" href="../samples/css/sample.css">
+	<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+	<!-- butons -->
+	<div id="sample-info">
+	</div>
+	<div id="sample-buttons" class="sample-btn">
+	</div>
+	
+	<script>
+	var container, stats;
+	var camera, controls, scene, renderer;
+	var objects = [];
+	var plane = new THREE.Plane();
+	var raycaster = new THREE.Raycaster();
+	var mouse = new THREE.Vector2();
+	var offset = new THREE.Vector3();
+	var intersection = new THREE.Vector3();
+	var SELECTED, DRAGGED, CHEST;
+
+	init();
+
+	function init() {
+
+		container = document.createElement( 'div' );
+		document.body.appendChild( container );
+
+		camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+		camera.position.z = 6;
+		camera.position.y = 5;
+
+		controls = new THREE.TrackballControls( camera );
+		controls.rotateSpeed = 1.0;
+		controls.zoomSpeed = 1.2;
+		controls.panSpeed = 0.8;
+		controls.noZoom = false;
+		controls.noPan = false;
+		controls.staticMoving = true;
+		controls.dynamicDampingFactor = 0.3;
+
+		scene = new THREE.Scene();
+
+		scene.add( new THREE.AmbientLight( 0x505050 ) );
+
+		var light = new THREE.SpotLight( 0xffffff, 1.5 );
+		light.position.set( 0, 500, 2000 );
+		scene.add( light );
+
+		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer.setClearColor( 0xf0f0f0 );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.sortObjects = false;
+
+		container.appendChild( renderer.domElement );
+
+		stats = new Stats();
+		container.appendChild( stats.dom );
+
+		renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+		window.addEventListener( 'resize', onWindowResize, false );
+		loadOBJ ("../data/models/objects/", "potion.mtl", "potion.obj",  scene, function (potion){
+		loadOBJ ("../data/models/objects/", "potion2.mtl", "potion.obj",  scene, function (potion2){
+		loadOBJ ("../data/models/objects/", "potion3.mtl", "potion.obj",  scene, function (potion3){
+		loadOBJ ("../data/models/objects/", "money.mtl", "money.obj",  scene, function (money){
+		loadOBJ ("../data/models/objects/", "axe.mtl", "axe.obj",  scene, function (axe){
+		loadOBJ ("../data/models/objects/", "hammer.mtl", "hammer.obj",  scene, function (hammer){
+		loadOBJ ("../data/models/objects/", "shield.mtl", "shield.obj",  scene, function (shield){
+		loadOBJ ("../data/models/objects/", "sword.mtl", "sword.obj",  scene, function (sword){
+		loadOBJ ("../data/models/objects/", "staff.mtl", "staff.obj",  scene, function (staff){
+		loadOBJ ("../data/models/objects/", "chest.mtl", "chest.obj",  scene, function (chest){
+			var object = shield.clone();
+			object.position.x = Math.random() * 20 - 10;
+			object.position.z = Math.random() * 10 - 10;
+			object.rotation.z =  Math.PI/2;
+			object.rotation.y = Math.random() * 2 * Math.PI;
+			scene.add( object );
+			objects.push( object );
+			object = staff.clone();
+			object.position.x = Math.random() * 20 - 10;
+			object.position.z = Math.random() * 10 - 10;
+			object.rotation.z =  Math.PI/2;
+			object.rotation.y = Math.random() * 2 * Math.PI;
+			scene.add( object );
+			objects.push( object )
+			object = sword.clone();
+			object.position.x = Math.random() * 20 - 10;
+			object.position.z = Math.random() * 10 - 10;
+			object.rotation.z =  Math.PI/2;
+			object.rotation.y = Math.random() * 2 * Math.PI;
+			scene.add( object );
+			objects.push( object )
+			for ( var i = 0; i < 2; i ++ ) {
+				object = axe.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.z =  Math.PI/2;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			}
+			for ( var i = 0; i < 2; i ++ ) {
+				object = hammer.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.z =  Math.PI/2;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			}
+					
+			for ( var i = 0; i < 4; i ++ ) {
+				object = potion.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			}
+
+			for ( var i = 0; i < 4; i ++ ) {
+				object = potion2.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			}
+					
+			for ( var i = 0; i < 4; i ++ ) {
+				object = potion3.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			}
+
+			for ( var i = 0; i < 4; i ++ ) {
+				object = money.clone();
+				object.position.x = Math.random() * 20 - 10;
+				object.position.z = Math.random() * 10 - 10;
+				object.rotation.y = Math.random() * 2 * Math.PI;
+				scene.add( object );
+				objects.push( object );
+			};
+	
+			CHEST=chest;
+			chest.name="chest";
+			object = chest;
+			object.position.x = 0;
+			object.position.z = 0;
+			object.rotation.y =  -Math.PI/2;
+			scene.add( object );
+			objects.push( object );
+
+			animate();
+				
+		});});});});});});});});});});
+
+	}
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+	function animate() {
+		requestAnimationFrame( animate );
+		render();
+		stats.update();
+	}
+
+	function render() {
+		controls.update();
+		renderer.render( scene, camera );
+	}
+			
+	function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc, fFail) {
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+				var mesh=object;
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+						mesh=child;
+                    }
+                });
+                fSuc(mesh);
+            });
+        });
+    };
+	
+	function onDocumentMouseMove( event ) {
+		event.preventDefault();
+		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+		raycaster.setFromCamera( mouse, camera );
+
+		if ( DRAGGED ) {
+			if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+				DRAGGED.position.copy( intersection.sub( offset ) );
+			}
+			return;
+		}
+
+		var intersects = raycaster.intersectObjects( objects );
+		if ( intersects.length > 0 ) {
+			if ( SELECTED != intersects[ 0 ].object ) {
+				SELECTED = intersects[ 0 ].object;
+				plane.setFromNormalAndCoplanarPoint(
+					camera.getWorldDirection( plane.normal ),
+					SELECTED.position );
+			}
+			container.style.cursor = 'pointer';
+		} else {
+			SELECTED = null;
+			container.style.cursor = 'auto';
+		}
+	}
+
+	function onDocumentMouseDown( event ) {
+		event.preventDefault();
+		if (SELECTED) {
+			controls.enabled = false;
+			DRAGGED = SELECTED;
+			if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+				offset.copy( intersection ).sub( DRAGGED.position );
+			}
+			container.style.cursor = 'move';
+		}
+	}
+
+	function onDocumentMouseUp( event ) {
+		event.preventDefault();
+		controls.enabled = true;
+		if ( DRAGGED ) {
+			if (DRAGGED.name!="chest") {
+				var intersects = raycaster.intersectObject( CHEST );
+				if ( intersects.length > 0 ) {
+					scene.remove(DRAGGED)
+				}
+			}
+			DRAGGED = null;
+		}
+		container.style.cursor = 'auto';
+	}
+
+	</script>
+
+</body>
+</html>

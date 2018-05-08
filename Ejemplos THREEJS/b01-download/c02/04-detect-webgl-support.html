@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Detect WebGL Support</title>
+    <meta charset="utf-8">
+    <style>
+
+        .big-message {
+            width: 80%;
+            height: auto;
+            margin: 0 auto;
+            padding: 5px;
+            text-align: center;
+            color: #33a933;
+            font-family: serif;
+            font-size: 40px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+	<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+ <div class="big-message" id="message">
+ </div>
+<script>
+	window.addEventListener("DOMContentLoaded", function(event) {
+        var hasGl = detectWebGL();
+		if (hasGl) {
+			document.getElementById("message").innerHTML = "Your browser supports WebGL";
+		} else {
+			document.getElementById("message").innerHTML = "Your browser NOT supports WebGL";
+			document.getElementById("message").style.color = "red";
+		}
+    });
+
+
+    function detectWebGL() {
+
+        var testCanvas = document.createElement("canvas");
+        var gl = null;
+        try {
+            gl = testCanvas.getContext("webgl", {antialias: false, depth: false });
+        } catch (x) {
+            gl = null;
+        }
+		if (gl==null) {
+		
+		    try {
+				gl = testCanvas.getContext("experimental-webgl", {antialias: false, depth: false });
+			} catch (x) {
+				gl = null;
+			}
+		}
+		
+        if (gl) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+</script>
+
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

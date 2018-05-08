@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - canvasrenderer</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/renders/canvasrenderer.js"></script>
+    <script src="../frameworks/renders/projector.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+    var renderer;
+    var scene;
+    var camera;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.CanvasRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        var cubeGeometry = new THREE.BoxGeometry(10 * Math.random(), 10 * Math.random(), 10 * Math.random());
+        var cubeMaterial = new THREE.MeshNormalMaterial();
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        scene.add(cube);
+
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener("DOMContentLoaded", function(event) {
+        init();
+    });
+
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

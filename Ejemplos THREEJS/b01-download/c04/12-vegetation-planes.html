@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>The Five Planets</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style>
+        body {
+			width:100%;
+			height:100%;
+			padding:0;
+            margin:0;
+            overflow:hidden;
+        }
+    </style>
+	<link rel="stylesheet" type="text/css" href="../css/screen.css"/>
+	
+	<!-- LOAD JQUERY & REQUIERE -->
+	<script src="../frameworks/require.min.js"></script>
+    <script src="../frameworks/jquery-2.0.3.min.js"></script>
+	
+	<!-- LOAD THREE.JS -->
+    <script src="../frameworks/three.min.js" defer></script>
+	<script src="../frameworks/renders/projector.js" defer></script>
+    <script src="../frameworks/loaders/DDSLoader.js" defer></script>
+	<script src="../frameworks/loaders/MTLLoader.js" defer></script>
+	<script src="../frameworks/loaders/OBJLoader.js" defer></script>
+	<script src="../frameworks/loaders/ColladaLoader.js" defer></script>
+	<script src="../frameworks/loaders/collada/Animation.js" defer></script>
+	<script src="../frameworks/loaders/collada/AnimationHandler.js" defer></script>
+	<script src="../frameworks/loaders/collada/KeyFrameAnimation.js" defer></script>
+	
+	<!-- LOAD DAT.GUI & STATS-->
+    <script src="../frameworks/dat.gui.min.js" defer></script>
+	<script src="../frameworks/stats.js" defer></script>
+	
+	<!-- GAME FILES-->
+	<script src="../core/controls/controls_path_v01.js" defer></script>
+    <script src="../core/world/world_v01.js" defer></script>
+	<script src="../core/world/ground_v01.js" defer></script>
+	<script src="../core/world/sky_v01.js" defer></script>
+
+<script>
+
+$(document).ready(function () {
+	$WORLD.distance = 140;
+	$WORLD.init3D({}, function () {
+		$WORLD.map = {
+		"x":256,
+		"z":256,
+		"ground": {
+			"type":"basic",
+			"texture":"../data/graphics/textures/terrain/grass1.jpg",
+			"resX":2,
+			"resY":2
+		},
+		"sky": {
+			"type":"skysphere",
+			"colorAmbient" : "rgb(90, 90, 90)",
+			"intensityAmbient" : 0.5,
+			"sunlightcolor" : "rgb(255, 255, 255)",
+			"sunlightposition": {"x":10, "y":20, "z":0},
+			"sunlightintensity" : 1,
+			"texture":"../data/graphics/textures/sky/skydome.jpg",
+			"fogColor": "rgb(255, 255, 255)",
+			"fogNear":6,
+			"fogFar":70
+		} 
+	};
+	
+	$WORLD.showStats();	
+	$WORLD.drawGround();
+	$WORLD.drawSky();
+
+
+	var  scene=$WORLD.scene;
+
+	var grassMeshes = [], grassGeometry, grassMaterial;
+
+	var worldWidth = 50, worldDepth = 50,
+	worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
+
+	var grassHeight = 5, grassWidth = 2;
+
+	var grassCount = 3000;
+			
+	grassGeometry = new THREE.PlaneGeometry( 2, 2, 1, 1 );
+				
+	var textureLoader= new THREE.TextureLoader();
+	var grassMap = textureLoader.load("../data/graphics/textures/vegetation/grass.png");
+
+	grassMaterial = new THREE.MeshBasicMaterial( { map: grassMap, alphaTest: 0.8, side: THREE.DoubleSide} );
+
+	for ( var i = 0, l = grassCount; i < l; i=i+3 ) {
+					grassMeshes[i] = new THREE.Mesh( grassGeometry, grassMaterial );
+					grassMeshes[i].position.x = Math.random() * worldWidth;// - worldHalfWidth;
+					grassMeshes[i].position.z = Math.random() * worldDepth;// - worldHalfDepth;
+					grassMeshes[i].position.y = 1;
+					grassMeshes[i].rotation.y = Math.random() * Math.PI;
+					scene.add( grassMeshes[i] );
+					grassMeshes[i+1] = new THREE.Mesh( grassGeometry, grassMaterial );
+					grassMeshes[i+1].position.x = grassMeshes[i].position.x;
+					grassMeshes[i+1].position.z = grassMeshes[i].position.z;
+					grassMeshes[i+1].position.y = 1;
+					grassMeshes[i+1].rotation.y = grassMeshes[i].rotation.y + Math.PI/3;
+					scene.add( grassMeshes[i+1] );	
+					grassMeshes[i+2] = new THREE.Mesh( grassGeometry, grassMaterial );
+					grassMeshes[i+2].position.x = grassMeshes[i].position.x;
+					grassMeshes[i+2].position.z = grassMeshes[i].position.z;
+					grassMeshes[i+2].position.y = 1;
+					grassMeshes[i+2].rotation.y = grassMeshes[i].rotation.y + Math.PI*2/3;
+					scene.add( grassMeshes[i+2] );	
+	}
+	
+	var path=new THREE.CatmullRomCurve3([
+		new THREE.Vector3(0, 2, 25),
+		new THREE.Vector3(25, 2, 50),
+		new THREE.Vector3(25, 2, 25),
+		new THREE.Vector3(25, 2, 0)
+		])
+	$WORLD.controls = new $CONTROLS.PathControls ($WORLD.camera, path, {"velocity":2});
+	$WORLD.controls.showPath();
+	$WORLD.addToListUpdate ($WORLD.controls);
+	$WORLD.startAnimation();
+	});
+})
+</script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>	
+</head>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

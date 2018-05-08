@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+    <link rel="stylesheet" href="../samples/css/code.css">
+    <script src="../frameworks/highlight/highlight.pack.js"></script>
+    <script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="../samples/js/code.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>13-full-screen.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+    &lt;title&gt;The Five Planets - fullscreen&lt;/title&gt;
+    &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot; /&gt;
+    &lt;style&gt;
+        body {
+            text-align:center;
+        }
+    
+        .demo-img {
+            height:128px;
+            width:128px;
+        }
+        .demo-img:fullscreen {
+            padding:42px;
+            background-color: blue;
+            border:2px solid #f00;
+        }
+
+        .demo-img:-webkit-full-screen {
+            padding:42px;
+            background-color: blue;
+            border:2px solid #f00;
+        }
+
+        .demo-img:-moz-full-screen {
+            padding:42px;
+            background-color: blue;
+            border:2px solid #f00;
+        }
+        
+        .demo-img:-ms-fullscreen  {
+            padding:42px;
+            background-color: blue;
+            border:2px solid #f00;
+        }
+                        
+    &lt;/style&gt;    
+    &lt;script&gt;
+    function fullscreenEnabled() {
+      return document.fullscreenEnabled || 
+            document.webkitFullscreenEnabled ||
+            document.mozFullScreenEnabled ||
+            document.msFullscreenEnabled;
+    };
+    
+    function fullscreen(element) {
+      if (!element) element=document.documentElement; 
+      element.requestFullscreen = element.requestFullscreen ||
+            element.mozRequestFullScreen ||
+            element.webkitRequestFullscreen ||
+            element.msRequestFullscreen;
+      element.requestFullscreen();
+    }
+    
+    function exitFullscreen() {
+      document.exitFullscreen = document.exitFullscreen ||
+            document.mozCancelFullScreen ||
+            document.webkitExitFullscreen ||
+            document.msExitFullscreen;
+      document.exitFullscreen();
+    }
+    
+    function isInFullscreenMode() {
+        return document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement;
+    }
+    
+    function toggleFullscreen() {
+        if (isInFullscreenMode()) {
+            exitFullscreen();
+        } else {
+            fullscreen();
+        }
+    }
+    
+    function handlerScreenChange () {
+        if (isInFullscreenMode()) {
+            document.getElementById(&quot;status&quot;).innerHTML=&quot;Modo pantalla completa activado&quot;;
+        } else {
+            document.getElementById(&quot;status&quot;).innerHTML=&quot;Modo pantalla completa desactivado&quot;;
+        }
+    }
+
+    function init () {
+        if (fullscreenEnabled()) {
+            document.getElementById(&quot;supported&quot;).innerHTML=&quot;El API HTML5 Fullscreen est&#225; disponible&quot;;
+            document.getElementById(&quot;supported&quot;).style.color=&quot;green&quot;
+            handlerScreenChange ();
+         } else {
+            document.getElementById(&quot;supported&quot;).innerHTML=&quot;El API HTML5 Fullscreen no est&#225; disponible&quot;;
+            document.getElementById(&quot;supported&quot;).style.color=&quot;red&quot;
+        }
+    }
+    
+    
+    document.addEventListener(&quot;fullscreenchange&quot;, handlerScreenChange);
+    document.addEventListener(&quot;webkitfullscreenchange&quot;, handlerScreenChange);
+    document.addEventListener(&quot;mozfullscreenchange&quot;, handlerScreenChange);
+    document.addEventListener(&quot;MSFullscreenChange&quot;, handlerScreenChange);
+    window.addEventListener(&quot;load&quot;, init);
+
+
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;Api &lt;/p&gt;
+&lt;button id=&quot;request&quot; onclick=&quot;fullscreen()&quot;&gt;Solicitar pantalla completa&lt;/button&gt;
+&lt;button id=&quot;exit&quot; onclick=&quot;exitFullscreen()&quot;&gt;Cancelar pantalla completa&lt;/button&gt;
+&lt;button id=&quot;toggle&quot; onclick=&quot;toggleFullscreen()&quot;&gt;Intercambiar modo&lt;/button&gt;
+&lt;br&gt;&lt;br&gt;
+
+&lt;div id=&quot;supported&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;status&quot;&gt;&lt;/div&gt;
+
+&lt;p&gt;Pulsa sobre una de las imagenes para verla a pantalla completa&lt;/p&gt;
+&lt;center&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\male_magician.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\male_magician2.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\female_magician1.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\female_magician2.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\female_cat1.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\female_elf1.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\male_cat1.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;td&gt;&lt;img class=&quot;demo-img&quot; src=&quot;..\data\graphics\portraits\male_elf1.png&quot; onclick=&quot;fullscreen(this)&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

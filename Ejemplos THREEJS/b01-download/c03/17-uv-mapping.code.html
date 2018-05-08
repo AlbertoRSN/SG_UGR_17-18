@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>17-uv-mapping.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - UV Mapping&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;script src=&quot;../frameworks/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/dat.gui.min.js&quot;&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;script&gt;
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(20, 20);
+
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = -4;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        var geometry = new THREE.BoxGeometry(4, 4, 4);
+        var textureLoader= new THREE.TextureLoader();
+        
+        var cubeMaterial = new THREE.MeshPhongMaterial({ color: 0x90abed, map:textureLoader.load(&quot;../data/graphics/textures/dice/dice-texture.jpg&quot;),transparent:true, opacity:1});
+
+        var face1 = [new THREE.Vector2(0, .666), new THREE.Vector2(.5, .666), new THREE.Vector2(.5, 1), new THREE.Vector2(0, 1)];
+        var face2 = [new THREE.Vector2(.5, .666), new THREE.Vector2(1, .666), new THREE.Vector2(1, 1), new THREE.Vector2(.5, 1)];
+        var face3 = [new THREE.Vector2(0, .333), new THREE.Vector2(.5, .333), new THREE.Vector2(.5, .666), new THREE.Vector2(0, .666)];
+        var face4 = [new THREE.Vector2(.5, .333), new THREE.Vector2(1, .333), new THREE.Vector2(1, .666), new THREE.Vector2(.5, .666)];
+        var face5 = [new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, .333), new THREE.Vector2(0, .333)];
+        var face6 = [new THREE.Vector2(.5, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, .333), new THREE.Vector2(.5, .333)];
+        
+        geometry.faceVertexUvs[0] = [];
+        
+        geometry.faceVertexUvs[0][0] = [ face1[0], face1[1], face1[3] ];
+        geometry.faceVertexUvs[0][1] = [ face1[1], face1[2], face1[3] ];
+&#160;&#160;
+        geometry.faceVertexUvs[0][2] = [ face2[0], face2[1], face2[3] ];
+        geometry.faceVertexUvs[0][3] = [ face2[1], face2[2], face2[3] ];
+&#160;&#160;
+        geometry.faceVertexUvs[0][4] = [ face3[0], face3[1], face3[3] ];
+        geometry.faceVertexUvs[0][5] = [ face3[1], face3[2], face3[3] ];
+&#160;&#160;
+        geometry.faceVertexUvs[0][6] = [ face4[0], face4[1], face4[3] ];
+        geometry.faceVertexUvs[0][7] = [ face4[1], face4[2], face4[3] ];
+&#160;&#160;
+        geometry.faceVertexUvs[0][8] = [ face5[0], face5[1], face5[3] ];
+        geometry.faceVertexUvs[0][9] = [ face5[1], face5[2], face5[3] ];
+&#160;&#160;
+        geometry.faceVertexUvs[0][10] = [ face6[0], face6[1], face6[3] ];
+        geometry.faceVertexUvs[0][11] = [ face6[1], face6[2], face6[3] ];
+
+        var cube = new THREE.Mesh(geometry, cubeMaterial);
+        cube.name=&#39;cube&#39;;
+        cube.castShadow = true;
+
+        scene.add(cube);
+
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, &#39;rotationSpeed&#39;, -1, 1);
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        scene.getObjectByName(&#39;cube&#39;).rotation.x += delta*0.4*control.rotationSpeed;
+        scene.getObjectByName(&#39;cube&#39;).rotation.y += delta*0.4*control.rotationSpeed;
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener(&#39;resize&#39;, handleResize, false);
+
+&lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

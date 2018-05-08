@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl - controls</title>
+	<meta charset="utf-8">
+    <script src="frameworks/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+	var clock;
+    var control;
+	var cube;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0xcccccc, 1.0);
+		renderer.physicallyCorrectLights = true;
+		renderer.gammaInput = true;
+		renderer.gammaOutput = true;
+		renderer.shadowMap.enabled = true;
+		renderer.toneMapping = THREE.ReinhardToneMapping;
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneBufferGeometry(100, 100);
+
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = -5;
+        plane.position.z = 0;
+
+		scene.add(plane);
+
+        var cubeGeometry = new THREE.BoxGeometry(5.12, 7.23, 0.7);
+		var textureLoader= new THREE.TextureLoader();
+		var texture=textureLoader.load("data/graphics/portada.jpg");
+
+		var texture0 = textureLoader.load( "data/graphics/paginas.jpg" ); //CC
+		var texture1 = textureLoader.load( "data/graphics/titulo.jpg" ); //titulo 
+		var texture2 = textureLoader.load( "data/graphics/paginas.jpg" ); //CC
+		var texture3 = textureLoader.load( "data/graphics/paginas.jpg" ); //cc
+		var texture4 = textureLoader.load( "data/graphics/portada.jpg" ); //portada
+		var texture5 = textureLoader.load( "data/graphics/contraportada.jpg" );// Contraportada
+
+		var materials = [
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture0 } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture1 } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture2 } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture3 } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture4 } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture5 } )
+		];
+		var cubeMaterial = new THREE.MultiMaterial( materials );
+
+		
+		
+       // var cubeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:cubemap,depthWrite: false, depthTest: false});
+        cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
+		
+        cube.name='cube';
+        cube.castShadow = true;
+
+        scene.add(cube);
+
+        camera.position.x = 0;
+        camera.position.y = 1;
+        camera.position.z = 11;
+        camera.lookAt(scene.position);
+
+
+		var ambient = new THREE.AmbientLight(0xffffff,0.8);
+		scene.add(ambient);
+		var directionalLight = new THREE.DirectionalLight(0xffffff, 1 );
+		directionalLight.castShadow = true;
+		directionalLight.position.set(10, 20 , 20); 
+		directionalLight.target.position.set(0, 0 , 0); 
+		directionalLight.shadow.camera.near = 0;
+		directionalLight.shadow.camera.far = 50; 
+		directionalLight.shadow.mapSize.width = 3 * 512; 
+		directionalLight.shadow.mapSize.height = 3 * 512;
+		directionalLight.shadow.camera.top = 20; //X
+		directionalLight.shadow.camera.right = 20;
+		directionalLight.shadow.camera.left = -20;
+		directionalLight.shadow.camera.bottom = -20;
+		directionalLight.shadow.camera.visible = true;
+		scene.add(directionalLight);
+
+        control = new function() {
+            this.rotationSpeed = 0.2;
+            this.opacity = 1;
+        };
+
+		clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+
+
+    function render() {
+
+		var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+		cube.rotation.y +=rotSpeed;
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<body>
+</body>
+</html>

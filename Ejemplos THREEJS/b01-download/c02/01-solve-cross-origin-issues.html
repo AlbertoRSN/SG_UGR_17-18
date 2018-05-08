@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>solve-cross-origin-issues</title>
+    <script src="../frameworks/three.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        var planeGeometry = new THREE.PlaneGeometry(40, 40);
+        var planeMaterial = new THREE.MeshBasicMaterial();
+
+        var textureLoader = new THREE.TextureLoader();
+        var texture = textureLoader.load("../data/graphics/textures/terrain/grass1.jpg");
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(10, 10);
+        planeMaterial.map = texture;
+
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.name = 'plane';
+        plane.rotation.set(degreesToRadian(-90),0,0)
+        scene.add(plane);
+        
+        camera.position.x = 3;
+        camera.position.y = 3;
+        camera.position.z = 3;
+        camera.lookAt(scene.position);
+
+        document.body.appendChild(renderer.domElement);
+        clock = new THREE.Clock();
+        animate();
+    }
+
+    function animate() {
+        var delta =  clock.getDelta();
+        renderer.render(scene, camera);
+        scene.getObjectByName('plane').rotation.z += delta*0.05;
+        requestAnimationFrame(animate);
+    }
+
+    function degreesToRadian (deg) {
+        return deg*Math.PI/180
+    }
+
+    window.onload = init;
+    window.addEventListener( 'resize', onWindowResize, false );
+    
+    function onWindowResize() {
+
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>22-point-spot-light.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - Point Light &amp; Spot Light&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;script src=&quot;../frameworks/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/dat.gui.min.js&quot;&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;script&gt;
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    var ambientLight;
+    var pointLight;
+    var spotLight;
+
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        //Load objects
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load(&quot;../data/graphics/textures/terrain/grass1.jpg&quot;);
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(5,5);
+        
+        var planeGeometry = new THREE.PlaneGeometry(35, 35);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+        
+        //Grass
+        var grassTexture=textureLoader.load(&quot;../data/graphics/textures/vegetation/grass.png&quot;);
+        var grassGeometry = new THREE.PlaneGeometry(6, 6);
+        var grassMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, map:grassTexture, transparent:true, opacity:1, side: THREE.DoubleSide, depthWrite: false, depthTest: false });
+        var grass = new THREE.Mesh(grassGeometry, grassMaterial);
+        grass.position.y = 2.7;
+        grass.position.x=1;
+    
+        var grass0=grass.clone();
+        scene.add(grass0);
+        var grass1=grass.clone();
+        scene.add(grass1)
+        grass1.rotation.y=0.25*Math.PI;
+        var grass2=grass.clone()
+        grass2.rotation.y=-0.25*Math.PI;
+        scene.add(grass2)
+        var grass3=grass.clone()
+        grass3.rotation.y=0.5*Math.PI;
+        scene.add(grass3)
+        
+        //Crates
+        var cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+        var textureLoader= new THREE.TextureLoader();
+        var texture=textureLoader.load(&quot;../data/graphics/textures/crate/crate1.jpg&quot;);
+        var cubeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:texture, transparent:true, opacity:1});
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+        
+        cube.position.set(6,1.5,6)
+        scene.add(cube);
+        
+        var cube1=cube.clone();
+        scene.add(cube1);
+        cube1.position.set(6,1.5,-11)
+        
+        cube1=cube.clone();
+        scene.add(cube1);
+        cube1.position.set(-4,1.5,-11)
+
+        //Walls
+        var wallTexture=textureLoader.load(&quot;../data/graphics/textures/wall/wall.jpg&quot;);
+        wallTexture.wrapS=THREE.RepeatWrapping;
+        wallTexture.wrapT=THREE.RepeatWrapping;
+        wallTexture.repeat.set(3,2);
+        var wallGeometry = new THREE.BoxGeometry(12, 6, 1);
+        var wallMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:wallTexture, transparent:true, opacity:1});
+        var wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall.position.y = 3;
+        wall.position.z = -8;
+        wall.castShadow = true;
+        wall.receiveShadow = true;
+        scene.add(wall)
+        var wall1=wall.clone();
+        scene.add(wall1)
+        wall1.rotation.y=0.5 * Math.PI;
+        wall1.position.x = -6.5;
+        wall1.position.z = -2.5;
+        
+        // Torus
+        var material = new THREE.MeshPhongMaterial({color: 0x2194CE, emissive: 0x000000, specular:0x111111,shininess:80,shading:THREE.SmoothShading});
+        var geometry = new THREE.TorusKnotGeometry( 2.5, 0.5, 100, 16 );
+        var mesh = new THREE.Mesh( geometry , material);
+        mesh.position.set(-4,4,8);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        scene.add(mesh);
+        
+        camera.position.x = 17;
+        camera.position.y = 19;
+        camera.position.z = 14;
+        camera.lookAt(scene.position);
+        camera.position.x = 27;
+        camera.position.y = 29;
+        camera.position.z = 24;
+        
+        // Ligths
+        ambientLight = new THREE.AmbientLight(0xffffff,0.02);
+        scene.add(ambientLight);
+        
+        pointLight = new THREE.PointLight(0xffffff, 9, 20 );
+        pointLight.position.set(0, 4 , 0); 
+        pointLight.castShadow = true;
+        scene.add(pointLight);
+
+        spotLight = new THREE.SpotLight(0xffffff, 9, 15, Math.PI/3, 1, 1);
+        spotLight.position.set(0, 8 , 0); 
+        spotLight.target.position.set(0, 0 , 0); 
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.ambientLight_visible=true;
+            this.ambientLight_color = 0xffffff;
+            this.ambientLight_intensity=0.02;
+            
+            this.pointLight_visible=true;
+            this.pointLight_color = 0xffffff;
+            this.pointLight_intensity=9;
+            this.pointLight_distance=20;
+            this.pointLight_decay=0.99;
+            this.pointLight_castShadow = true;
+            
+            this.spotLight_visible=false;
+            this.spotLight_color = 0xffffff;
+            this.spotLight_intensity=9;
+            this.spotLight_distance=20;
+            this.spotLight_angle= Math.PI / 3;
+            this.spotLight_penumbra=0.99;
+            this.spotLight_decay=0.99;
+            this.spotLight_castShadow = true;
+
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, &#39;rotationSpeed&#39;, -1, 1);
+        var fal=gui.addFolder(&#39;THREE.AmbientLight&#39;);
+        fal.add(controlObject, &#39;ambientLight_visible&#39;).name(&#39;visible&#39;);
+        fal.addColor(controlObject, &#39;ambientLight_color&#39;).name(&#39;color&#39;);
+        fal.add(controlObject, &#39;ambientLight_intensity&#39;, 0, 2).name(&#39;intensity&#39;);
+
+        var fpl=gui.addFolder(&#39;THREE.PointLight&#39;);
+        fpl.add(controlObject, &#39;pointLight_visible&#39;).name(&#39;visible&#39;);
+        fpl.addColor(controlObject, &#39;pointLight_color&#39;).name(&#39;color&#39;);
+        fpl.add(controlObject, &#39;pointLight_intensity&#39;, 0, 10).name(&#39;intensity&#39;);
+        fpl.add(controlObject, &#39;pointLight_distance&#39;, 0, 200).name(&#39;distance&#39;);
+        fpl.add(controlObject, &#39;pointLight_decay&#39;, 0, 2).name(&#39;decay&#39;);
+        fpl.add(controlObject, &#39;pointLight_castShadow&#39;).name(&#39;castShadow&#39;);
+
+        var fsl=gui.addFolder(&#39;THREE.SpotLight&#39;);
+        fsl.add(controlObject, &#39;spotLight_visible&#39;).name(&#39;visible&#39;);
+        fsl.addColor(controlObject, &#39;spotLight_color&#39;).name(&#39;color&#39;);
+        fsl.add(controlObject, &#39;spotLight_intensity&#39;, 0, 10).name(&#39;intensity&#39;);
+        fsl.add(controlObject, &#39;spotLight_distance&#39;, 0, 200).name(&#39;distance&#39;);
+        fsl.add(controlObject, &#39;spotLight_angle&#39;, 0, 1.05).name(&#39;angle&#39;);
+        fsl.add(controlObject, &#39;spotLight_penumbra&#39;, 0, 2).name(&#39;penumbra&#39;);
+        fsl.add(controlObject, &#39;spotLight_decay&#39;, 0, 2).name(&#39;decay&#39;);
+        fsl.add(controlObject, &#39;spotLight_castShadow&#39;).name(&#39;castShadow&#39;);
+        
+
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        ambientLight.visible=control.ambientLight_visible;
+        ambientLight.color=new THREE.Color(control.ambientLight_color);
+        ambientLight.intensity=control.ambientLight_intensity;
+        
+        pointLight.visible=control.pointLight_visible;
+        pointLight.color=new THREE.Color(control.pointLight_color);
+        pointLight.intensity=control.pointLight_intensity;
+        pointLight.distance=control.pointLight_distance;
+        pointLight.decay=control.pointLight_decay;
+        pointLight.castShadow=control.pointLight_castShadow;
+
+        spotLight.visible=control.spotLight_visible;
+        spotLight.color=new THREE.Color(control.spotLight_color);
+        spotLight.intensity=control.spotLight_intensity;
+        spotLight.distance=control.spotLight_distance;
+        spotLight.angle=control.spotLight_angle;
+        spotLight.penumbra=control.spotLight_penumbra;
+        spotLight.decay=control.spotLight_decay;
+        spotLight.castShadow=control.spotLight_castShadow;
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener(&#39;resize&#39;, handleResize, false);
+
+&lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Spot Light</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    var spotLight;
+    var lightHelper ;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.physicallyCorrectLights = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = -4;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+        var textureLoader= new THREE.TextureLoader();
+        
+        var materials=[];
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face1.jpg"), transparent:true, opacity:1}) );
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face2.jpg"), transparent:true, opacity:1}) );
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face3.jpg"), transparent:true, opacity:1}) );
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face4.jpg"), transparent:true, opacity:1}) );
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face5.jpg"), transparent:true, opacity:1}) );
+        materials.push( new THREE.MeshPhongMaterial({color: 0x90abed, map:textureLoader.load("../data/graphics/textures/dice/face6.jpg"), transparent:true, opacity:1}) );
+        var cubeMaterial = new THREE.MeshFaceMaterial( materials );
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.name='cube';
+        cube.castShadow = true;
+
+        scene.add(cube);
+
+        camera.position.x = 18;
+        camera.position.y = 30;
+        camera.position.z = 35;
+        camera.lookAt(scene.position);
+
+        ambientLight = new THREE.AmbientLight(0xffffff,0.01);
+        scene.add(ambientLight);
+        
+        spotLight = new THREE.SpotLight(0xffffff, 10, 100, 0.6, 0.5, 0);
+        spotLight.position.set(0, 15 , 0); 
+        spotLight.target.position.set(0, 0 , 0); 
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        spotLight.shadow.mapSize.width = 3 * 512; 
+        spotLight.shadow.mapSize.height = 3 * 512;
+        
+        lightHelper = new THREE.SpotLightHelper( spotLight );
+        scene.add(lightHelper);
+        
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            
+            this.ambientLight_visible=true;
+            this.ambientLight_color = 0xffffff;
+            this.ambientLight_intensity=0.01;
+            
+            this.spotLight_visible=true;
+            this.spotLight_color = 0xffffff;
+            this.spotLight_intensity=10;
+            this.spotLight_distance=100;
+            this.spotLight_angle= 0.6;
+            this.spotLight_penumbra=0.5;
+            this.spotLight_decay=0;
+            this.spotLight_castShadow = true;
+            this.spotLight_positionX=0;
+            this.spotLight_positionY=15;
+            this.spotLight_positionZ=0;
+
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+
+        var fal=gui.addFolder('THREE.AmbientLight');
+        fal.add(controlObject, 'ambientLight_visible').name('visible');
+        fal.addColor(controlObject, 'ambientLight_color').name('color');
+        fal.add(controlObject, 'ambientLight_intensity', 0, 2).name('intensity');
+        
+        var fsl=gui.addFolder('THREE.SpotLight');
+        fsl.add(controlObject, 'spotLight_visible').name('visible');
+        fsl.addColor(controlObject, 'spotLight_color').name('color');
+        fsl.add(controlObject, 'spotLight_intensity', 0, 10).name('intensity');
+        fsl.add(controlObject, 'spotLight_distance', 0, 200).name('distance');
+        fsl.add(controlObject, 'spotLight_angle', 0, 1.05).name('angle');
+        fsl.add(controlObject, 'spotLight_penumbra', 0, 2).name('penumbra');
+        fsl.add(controlObject, 'spotLight_decay', 0, 2).name('decay');
+        fsl.add(controlObject, 'spotLight_castShadow').name('castShadow');
+        fsl.add(controlObject, 'spotLight_positionX',-3,3).name('X');
+        fsl.add(controlObject, 'spotLight_positionY',0,30).name('Y');
+        fsl.add(controlObject, 'spotLight_positionZ',-3,3).name('Z');
+        
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+
+        ambientLight.visible=control.ambientLight_visible;
+        ambientLight.color=new THREE.Color(control.ambientLight_color);
+        ambientLight.intensity=control.ambientLight_intensity;
+        
+        spotLight.visible=control.spotLight_visible;
+        spotLight.color=new THREE.Color(control.spotLight_color);
+        spotLight.intensity=control.spotLight_intensity;
+        spotLight.distance=control.spotLight_distance;
+        spotLight.angle=control.spotLight_angle;
+        spotLight.penumbra=control.spotLight_penumbra;
+        spotLight.decay=control.spotLight_decay;
+        spotLight.castShadow=control.spotLight_castShadow;
+        spotLight.position.set(control.spotLight_positionX,control.spotLight_positionY,control.spotLight_positionZ);
+        
+        lightHelper.update(); // required
+                
+        scene.getObjectByName('cube').rotation.x += delta*control.rotationSpeed;
+        scene.getObjectByName('cube').rotation.y += delta*control.rotationSpeed;
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

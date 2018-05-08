@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl - orbit controls</title>
+	<meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+	<script src="../frameworks/controls/OrbitControls.js"></script>
+	<script src="../frameworks/loaders/MTLLoader.js"></script>
+	<script src="../frameworks/loaders/OBJLoader.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+	var clock;
+	var camControls;
+	
+	var machine;
+	var distance=125;	
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+		renderer.physicallyCorrectLights = true;
+		renderer.gammaInput = true;
+		renderer.gammaOutput = true;
+		renderer.shadowMap.enabled = true;
+		renderer.toneMapping = THREE.ReinhardToneMapping;
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		scene.fog = new THREE.Fog(0x000000, 5, (distance - distance / 4)); 
+		renderer.setClearColor(0x000000, 1);
+		
+		var textureLoader= new THREE.TextureLoader();
+		var floorTexture=textureLoader.load("../data/graphics/textures/wall/floor.jpg");
+		floorTexture.wrapS=THREE.RepeatWrapping;
+		floorTexture.wrapT=THREE.RepeatWrapping;
+		floorTexture.repeat.set(160,160);
+		
+        var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture,side:THREE.DoubleSide});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+		scene.add(plane);
+
+        camera.position.x = 10;
+        camera.position.y = 13;
+        camera.position.z = 17;
+        camera.lookAt(scene.position);
+
+		var ambient = new THREE.AmbientLight(0xffffff,0.3);
+		scene.add(ambient);
+		
+		var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+		light.position.set(10, 20 , 20); 
+		light.castShadow = true;
+		light.shadow.camera.near = 0;
+		light.shadow.camera.far = 50; 
+		light.shadow.mapSize.width = 3 * 512; 
+		light.shadow.mapSize.height = 3 * 512;
+		light.shadow.camera.top = 25; //X
+		light.shadow.camera.right = 25;
+		light.shadow.camera.left = -25;
+		light.shadow.camera.bottom = -25;
+		light.shadow.camera.visible = true;
+		scene.add(light);
+
+		camControls = new THREE.OrbitControls(camera);
+
+		clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+		loadOBJ ("../data/models/arcade/", "arcade.mtl", "arcade.obj",  scene, function (obj){
+			machine=obj;
+			for (var x=-200;x<200;x+=40) {
+				for (var z=-200;z<200;z+=30) {
+					var machine=obj.clone();
+					machine.position.set(x+Math.random()*15,0,z+Math.random()*15);
+					machine.rotation.y=Math.random()*6;
+					scene.add(machine)
+				}			
+			}
+			render();
+		});
+        
+    }
+
+    function render() {
+
+		var delta =  clock.getDelta();
+		camControls.update(delta);
+		//console.log(camera.position.x+","+camera.position.y+camera.position.z)
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+	function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc, fFail) {
+        var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + '% downloaded');
+                }
+        };
+
+        var onError = function (xhr) {
+			if (fFail) {fFail(xhr);}
+			console.log('ERROR');
+		};
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+
+				//Active shadows
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                           child.castShadow = true;
+                    }
+
+                });
+				object.castShadow = true;
+	            object.position.set(0, 0.1, 0);
+				object.scale.x=object.scale.y=object.scale.z=10;
+
+                scene.add(object);
+				fSuc(object);
+   
+            }, onProgress, onError);
+
+        });
+    };
+	
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<link rel="stylesheet" href="../samples/css/sample.css">
+<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+<div id="sample-info-panel">
+	<center>Ejemplo de <i>OrbitControls.js</i></center><br>
+	Flechas: Arriba/Izquierda/Abajo/Derecha.<br>
+	Movimiento ratón y botón derecho: Mover Arriba/Izquierda/Abajo/Derecha. <br>
+	Movimiento ratón y Botón izquierdo: Girar alrededor del objeto enfocado. <br>
+	Botón del medio del ratón: Apliar o reducir.<br>
+	Usando los dedos en pantalla táctil.
+</div>
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+    <link rel="stylesheet" href="../samples/css/code.css">
+    <script src="../frameworks/highlight/highlight.pack.js"></script>
+    <script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="../samples/js/code.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>05-trackball-controls.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;three.js webgl - trackball controls&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;script src=&quot;../frameworks/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/controls/TrackballControls.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/MTLLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/OBJLoader.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/dat.gui.min.js&quot;&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+
+&lt;script&gt;
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var camControls;
+    
+    var machine;
+    var distance=125;    
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        scene.fog = new THREE.Fog(0x000000, 5, (distance - distance / 4)); 
+        renderer.setClearColor(0x000000, 1);
+        
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load(&quot;../data/graphics/textures/wall/floor.jpg&quot;);
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(160,160);
+        
+        var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture,side:THREE.DoubleSide});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+
+        camera.position.x = 10;
+        camera.position.y = 13;
+        camera.position.z = 17;
+        camera.lookAt(scene.position);
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.camera.near = 0;
+        light.shadow.camera.far = 50; 
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        scene.add(light);
+
+        camControls = new THREE.TrackballControls(camera);
+        camControls.lookSpeed = 0.01;
+        camControls.movementSpeed = 10;
+        camControls.constrainVertical = true;
+        camControls.verticalMin = Math.PI*1/4;
+        camControls.verticalMax = Math.PI*3/4;
+    
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        loadOBJ (&quot;../data/models/arcade/&quot;, &quot;arcade.mtl&quot;, &quot;arcade.obj&quot;,  scene, function (obj){
+            machine=obj;
+            scene.add(machine);
+            render();
+        });
+        
+    }
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        camControls.update(delta);
+        //console.log(camera.position.x+&quot;,&quot;+camera.position.y+camera.position.z)
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc, fFail) {
+        var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + &#39;% downloaded&#39;);
+                }
+        };
+
+        var onError = function (xhr) {
+            if (fFail) {fFail(xhr);}
+            console.log(&#39;ERROR&#39;);
+        };
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+
+                //Active shadows
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                           child.castShadow = true;
+                    }
+
+                });
+                object.castShadow = true;
+                object.position.set(0, 0.1, 0);
+                object.scale.x=object.scale.y=object.scale.z=10;
+
+                scene.add(object);
+                fSuc(object);
+   
+            }, onProgress, onError);
+
+        });
+    };
+    
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener(&#39;resize&#39;, handleResize, false);
+
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

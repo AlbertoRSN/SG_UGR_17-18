@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+	<title>Detección de movimiento</title>
+	<!-- http://www.webrtc.org/ -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<script src="../frameworks/adapter.js" defer></script>
+	<style>
+		body 
+		{
+			font-family: Monospace;
+			font-weight: bold;
+			background-color: #ccccff;
+			margin: 5px;
+			overflow: hidden;
+		}
+	</style>
+<link rel="stylesheet" href="../samples/css/sample.css">
+<script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+<video id="monitor" autoplay style="display: none; width: 320px; height: 240px;"></video>
+
+<div id="canvasLayers" width="320" height="240" style="position: absolute; right: 0px; top: 0px; width: 320px; height: 240px; overflow:hidden;">
+<canvas id="videoCanvas" width="320" height="240" style="z-index: 1; position: absolute; left:0px; top:0px;width: 320px; height: 240px; overflow:hidden;"></canvas>
+<canvas id="buttonsLayer" width="320" height="240" style="z-index: 2; position: absolute; left:0px; top:0px; opacity:0.5;width: 320px; height: 240px; overflow:hidden;"></canvas>
+</div>
+<canvas id="blendCanvas"  width="320" height="240" style="display: block; position: absolute; right: 320px; top: 0px; width: 320px; height: 240px;"></canvas>
+<div id="messageError"></div>
+<div id="messageArea" style="position: relative; left: 0px; top: 270px;text-align:center"></div>
+
+<script>
+
+if (!navigator.mediaDevices) 
+{
+	document.getElementById('messageError').innerHTML = 'Lo sentimos. La tecnología WebRTC no esta disponible.';
+}
+
+navigator.mediaDevices.getUserMedia(
+	{
+	 audio: false,
+	 video: {width: 320, height: 240}
+	}).then(gotStream)
+    .catch(errorStream);
+
+function gotStream(stream) 
+{
+	var camvideo = document.getElementById('monitor');
+	camvideo.srcObject = stream;
+	camvideo.onerror = function(e) 
+	{stream.stop();};
+	stream.onended = errorStream;
+}
+
+function errorStream(e) 
+{
+	var msg = 'No hay camara disponible o el código se ejecuta desde un servidor no seguro.';
+	if (e.code == 1) {   msg = 'El usuario ha denegado el acceso a la cámara.';   }
+	document.getElementById('messageError').innerHTML = msg;
+}
+</script>
+
+
+<script>
+var monitor = document.getElementById( 'monitor' );
+var videoCanvas = document.getElementById( 'videoCanvas' );
+var videoContext = videoCanvas.getContext( '2d' );
+
+var buttonsLayerCanvas = document.getElementById( 'buttonsLayer' );
+var buttonsLayerContext = buttonsLayerCanvas.getContext( '2d' );
+
+var blendCanvas  = document.getElementById( "blendCanvas" );
+var blendContext = blendCanvas.getContext('2d');
+
+var messageArea = document.getElementById( "messageArea" );
+
+videoContext.translate(320, 0);
+videoContext.scale(-1, 1);
+		
+videoContext.fillStyle = '#005337';
+videoContext.fillRect( 0, 0, videoCanvas.width, videoCanvas.height );				
+
+var buttons = [];
+
+var button1 = new Image();
+button1.onload=function(){drawButton(0)};
+var buttonData1 = { name:"wait", image:button1, x:64 + 10, y:10, w:32, h:32, pressed:false  };
+buttons.push( buttonData1 );
+button1.src ="../data/graphics/ui/ico/wait-icon.png";
+
+var button2 = new Image();
+button2.onload=function(){drawButton(1)};
+var buttonData2 = { name:"walking", image:button2, x: 32 + 10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData2 );
+button2.src ="../data/graphics/ui/ico/walking-icon.png";
+
+var button3 = new Image();
+button3.onload=function(){drawButton(2)};
+var buttonData3 = { name:"runing", image:button3, x:10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData3 );
+button3.src ="../data/graphics/ui/ico/running-icon.png";
+
+var button4 = new Image();
+button4.onload=function(){drawButton(3)};
+var buttonData4 = { name:"left", image:button4, x:320 - 96 - 10, y:10, w:32, h:32, pressed:false  };
+buttons.push( buttonData4 );
+button4.src ="../data/graphics/ui/ico/left-icon.png";
+
+var button5 = new Image();
+button5.onload=function(){drawButton(4)};
+var buttonData5 = { name:"forward", image:button5, x: 320 - 64 -10 , y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData5 );
+button5.src ="../data/graphics/ui/ico/up-icon.png";
+
+var button6 = new Image();
+button6.onload=function(){drawButton(5)};
+var buttonData6 = { name:"right", image:button6, x:320 - 32 - 10, y:10, w:32, h:32, pressed:false };
+buttons.push( buttonData6 );
+button6.src ="../data/graphics/ui/ico/right-icon.png";
+
+function drawButton(i){
+	buttonsLayerContext.drawImage( buttons[i].image, buttons[i].x, buttons[i].y, buttons[i].w, buttons[i].h );
+}
+
+var lastImageData;
+var currentImageData;
+
+function getCurrentImageData() 
+{	
+	videoContext.drawImage( monitor, 0, 0, videoCanvas.width, videoCanvas.height );
+	lastImageData = currentImageData;
+	currentImageData = videoContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height);
+	if (!lastImageData) lastImageData = currentImageData;
+}
+
+var blendedImageData = blendContext.createImageData(videoCanvas.width, videoCanvas.height);
+var blendedData= blendedImageData.data;
+for (var i = 0;i < (blendedData.length);i+=4) 
+{
+	blendedData[i+3] = 0xFF;
+}
+
+function blend() 
+{
+	differenceAccuracy(blendedImageData.data, currentImageData.data, lastImageData.data);
+	blendContext.putImageData(blendedImageData, 0, 0);
+}
+
+function differenceAccuracy(target, data1, data2) 
+{
+	if (data1.length != data2.length) return null;
+	for (var i = 0;i < (data1.length);i+=4) 
+	{
+		var diff=(fastAbs(data1[i] - data2[i]) > 31 || fastAbs(data1[i+1] - data2[i+1]) > 31 ||  fastAbs(data1[i+2] - data2[i+2]) > 31)? 0xFF : 0;
+		target[i]   = diff;
+		target[i+1] = diff;
+		target[i+2] = diff;
+	}
+};
+function fastAbs(value) 
+{
+	return (value ^ (value >> 31)) - (value >> 31);
+}
+
+function checkAreas() 
+{
+	for (var b = 0; b < buttons.length; b++)
+	{
+		var blendedData = blendContext.getImageData( buttons[b].x, buttons[b].y, buttons[b].w, buttons[b].h );
+		
+		var sum = 0;
+		var countPixels = blendedData.data.length * 0.25;
+		for (var i = 0;i < (blendedData.data.length);i+=4) 
+		{
+			sum += blendedData.data[i];
+		}
+		var average = Math.round(sum / countPixels);
+		if (average > 50) //20%
+		{
+			buttons[b].pressed=true;
+		} else {
+			buttons[b].pressed=false;
+		}
+	}
+}
+
+
+animate();
+
+var action="parados";
+var action2="adelante";
+
+function animate() 
+{
+    requestAnimationFrame( animate );
+	if ( monitor.readyState === monitor.HAVE_ENOUGH_DATA ) 	{
+
+		getCurrentImageData();	
+		blend();	
+		checkAreas();
+
+		if (buttonData3.pressed) {
+			action="corriendo";
+		} else if (buttonData2.pressed) {
+			action="andando";
+		} else if (buttonData1.pressed) {
+			action="parados";
+		};
+	
+		if (buttonData5.pressed) {
+			action2="adelante";
+		} else if (buttonData6.pressed) {
+			action2="la derecha";
+		} else if (buttonData4.pressed) {
+			action2="la izquierda";
+		}
+		var msg ="Estamos " + action;
+		if (action!="parados"){
+			msg +=" y vamos hacia "+action2;
+		};	
+		messageArea.innerHTML = "<font size='+4'><b>" + msg + ".</b></font>";
+	}
+}
+
+</script>
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

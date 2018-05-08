@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - load house</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/loaders/MTLLoader.js"></script>
+    <script src="../frameworks/loaders/OBJLoader.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    
+    var tower;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x63adef, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load("../data/graphics/textures/terrain/grass1.jpg");
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(8,8);
+        
+        var planeGeometry = new THREE.PlaneGeometry(50, 50);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+
+        camera.position.x = 1.5;
+        camera.position.y = 2.5;
+        camera.position.z = -6.5;
+        camera.lookAt(new THREE.Vector3(0,2.5,0));
+
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.camera.near = 0;
+        light.shadow.camera.far = 50; 
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x086113;
+            this.side=THREE.DoubleSide;
+            this.cameraPos=0;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        loadOBJ ("../data/models/houses02/", "house2-02.mtl", "house2-02.obj",  scene, function (obj){
+            tower=obj;
+            tower.scale.x=tower.scale.z=1.5;
+            tower.updateMatrix();
+            render();
+        });
+		window.addEventListener('resize', handleResize, false);
+        
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+        gui.add(controlObject, 'opacity', 0.1, 1);
+        gui.add(controlObject, 'side', {
+            "THREE.FrontSide" : THREE.FrontSide,
+            "THREE.DoubleSide" : THREE.DoubleSide
+        });
+        gui.add(controlObject, 'cameraPos', {
+            "inside" : 0,
+            "outside" : 1
+        });
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.rotation.y += rotSpeed*0.4;
+
+        tower.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material.transparent = true;
+                child.material.opacity = control.opacity;
+                child.material.side= +control.side;
+            }
+        });
+
+        if (control.cameraPos==0) {
+            camera.position.x = 1.5;
+            camera.position.y = 2.5;
+            camera.position.z = -6.5;
+            camera.lookAt(new THREE.Vector3(0,2.5,0));
+        } else {
+            camera.position.x = 15;
+            camera.position.y = 37;
+            camera.position.z = 33;
+            camera.lookAt(scene.position);
+        }
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function loadOBJ (path, fileMaterial, fileOBJ, scene, fSuc) {
+        var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + '% downloaded');
+                }
+        };
+
+        var onError = function (xhr) { 
+            console.log('ERROR');
+        };
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(fileMaterial, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(fileOBJ, function (object) {
+
+                //Active shadows
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                              child.castShadow = true;
+                    }
+
+                });
+                object.castShadow = true;
+                object.position.set(0, 0, 0);
+
+                scene.add(object);
+                fSuc(object);
+   
+            }, onProgress, onError);
+
+        });
+    };
+    
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+
+</script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

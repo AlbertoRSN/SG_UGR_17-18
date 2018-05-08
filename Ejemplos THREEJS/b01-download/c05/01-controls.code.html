@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+    <link rel="stylesheet" href="../samples/css/code.css">
+    <script src="../frameworks/highlight/highlight.pack.js"></script>
+    <script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="../samples/js/code.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>01-controls.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+    &lt;title&gt;The Five Planets&lt;/title&gt;
+    &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html;charset=utf-8&quot; /&gt;
+    &lt;style&gt;
+        body {
+            width:100%;
+            height:100%;
+            padding:0;
+            margin:0;
+            overflow:hidden;
+        }
+    &lt;/style&gt;
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;../css/screen.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;../css/ui.css&quot;/&gt;
+    
+    &lt;!-- LOAD JQUERY &amp; REQUIERE --&gt;
+    &lt;script src=&quot;../frameworks/require.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/jquery-2.0.3.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/ui/ui_v01.js&quot; defer&gt;&lt;/script&gt;
+    
+    &lt;!-- LOAD THREE.JS --&gt;
+    &lt;script src=&quot;../frameworks/three.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/renders/projector.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/DDSLoader.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/MTLLoader.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/OBJLoader.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/ColladaLoader.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/collada/Animation.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/collada/AnimationHandler.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/loaders/collada/KeyFrameAnimation.js&quot; defer&gt;&lt;/script&gt;
+    
+    &lt;!-- LOAD DAT.GUI &amp; STATS--&gt;
+    &lt;script src=&quot;../frameworks/dat.gui.min.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/stats.js&quot; defer&gt;&lt;/script&gt;
+    
+    &lt;!-- GAME FILES--&gt;
+    &lt;script src=&quot;../core/controls/controls_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/world/world_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/world/ground_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/world/sky_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/world/nature_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/entities/template3D_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/entities/entity3D_v02.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/ai/ai_path_v01.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;../core/ai/ai_random_v01.js&quot; defer&gt;&lt;/script&gt;
+
+&lt;script&gt;
+
+$(document).ready(function () {
+    $UI.drawloading();
+    $UI.loading.setValue(0);
+    $UI.loading.show();
+    $WORLD.distance = 130;
+    $WORLD.init3D({}, function () {
+        $UI.loading.setValue(0.05);//5%
+        $RG.templates={
+            &quot;castle_wall_a&quot;: {&quot;model&quot; : &quot;../data/models/castle/wall_a.obj&quot;},
+            &quot;castle_wall_b&quot;: {&quot;model&quot; : &quot;../data/models/castle/wall_b.obj&quot;},
+            &quot;castle_wall_c&quot;: {&quot;model&quot; : &quot;../data/models/castle/wall_c.obj&quot;},
+            &quot;castle_gate_wall&quot;: {&quot;model&quot; : &quot;../data/models/castle/gate_wall.obj&quot;},
+            &quot;castle_metal_gate&quot;: {&quot;model&quot; : &quot;../data/models/castle/metal_gate.obj&quot;},
+            &quot;castle_tower1&quot;: {&quot;model&quot; : &quot;../data/models/castle/tower1.obj&quot;},
+            &quot;castle_tower2&quot;: {&quot;model&quot; : &quot;../data/models/castle/tower2.obj&quot;},
+            &quot;castle_tower3&quot;: {&quot;model&quot; : &quot;../data/models/castle/tower3.obj&quot;},
+            &quot;house1&quot;: {&quot;model&quot;: &quot;../data/models/houses01/house1-01.obj&quot;},
+            &quot;house2&quot;: {&quot;model&quot;: &quot;../data/models/houses01/house1-02.obj&quot;},
+            &quot;house3&quot;: {&quot;model&quot;: &quot;../data/models/houses01/house1-03.obj&quot;},
+            &quot;house4&quot;: {&quot;model&quot;: &quot;../data/models/houses01/house1-04.obj&quot;},
+            &quot;well1&quot;: {&quot;model&quot;: &quot;../data/models/houses01/well-01.obj&quot;},
+            &quot;bench1&quot;: {&quot;model&quot;: &quot;../data/models/houses01/bench-01.obj&quot;},
+            &quot;house17&quot;: {&quot;model&quot;: &quot;../data/models/houses05/house5-01.obj&quot;},
+            &quot;house18&quot;: {&quot;model&quot;: &quot;../data/models/houses05/house5-02.obj&quot;},
+            &quot;house19&quot;: {&quot;model&quot;: &quot;../data/models/houses05/house5-03.obj&quot;},
+            &quot;house20&quot;: {&quot;model&quot;: &quot;../data/models/houses05/house5-04.obj&quot;},
+            &quot;house21&quot;: {&quot;model&quot;: &quot;../data/models/houses05/house5-05.obj&quot;},
+            &quot;house22&quot;: {&quot;model&quot;: &quot;../data/models/houses06/house6-01.obj&quot;},
+            &quot;house23&quot;: {&quot;model&quot;: &quot;../data/models/houses06/house6-02.obj&quot;},
+            &quot;house25&quot;: {&quot;model&quot;: &quot;../data/models/houses06/house6-03.obj&quot;},
+            
+            &quot;tree07&quot;: {&quot;model&quot;: &quot;../data/graphics/textures/vegetation/tree07.png&quot;,&quot;width&quot;:10.2,&quot;height&quot;:14.53,&quot;type&quot;:3},
+            &quot;villager01&quot;: {&quot;model&quot;: &quot;../data/models/people/aldeano01.dae&quot;, &quot;type&quot;:1, &quot;animation&quot;:true, &quot;ai&quot;:&quot;PathAI&quot;, &quot;scale&quot;:{&quot;x&quot;:1.5,&quot;y&quot;:1.5,&quot;z&quot;:1.5}, &quot;rotate&quot;:{&quot;x&quot;:-90,&quot;y&quot;:0,&quot;z&quot;:0}},
+            &quot;aliendog&quot;: {&quot;model&quot;: &quot;../data/models/monsters/aliendog.dae&quot;, &quot;type&quot;:1, &quot;animation&quot;:true, &quot;ai&quot;:&quot;RandomAI&quot;, &quot;scale&quot;:{&quot;x&quot;:0.05,&quot;y&quot;:0.05,&quot;z&quot;:0.05}, &quot;rotate&quot;:{&quot;x&quot;:-90,&quot;y&quot;:0,&quot;z&quot;:-90}}
+        }
+        $WORLD.map = {
+        &quot;x&quot;:256,
+        &quot;z&quot;:256,
+        &quot;startPosX&quot;:126,
+        &quot;startPosZ&quot;:145,
+        &quot;ground&quot;: {
+            &quot;type&quot;:&quot;basic&quot;,
+            &quot;texture&quot;:&quot;../data/graphics/textures/terrain/grass1.jpg&quot;,
+            &quot;resX&quot;:2,
+            &quot;resY&quot;:2
+        },
+        &quot;sky&quot;: {
+            &quot;type&quot;:&quot;skysphere&quot;,
+            &quot;colorAmbient&quot; : &quot;rgb(90, 90, 90)&quot;,
+            &quot;intensityAmbient&quot; : 0.5,
+            &quot;sunlightcolor&quot; : &quot;rgb(255, 255, 255)&quot;,
+            &quot;sunlightposition&quot;: {&quot;x&quot;:10, &quot;y&quot;:20, &quot;z&quot;:0},
+            &quot;sunlightintensity&quot; : 1,
+            &quot;texture&quot;:&quot;../data/graphics/textures/sky/skydome.jpg&quot;,
+            &quot;fogColor&quot;: &quot;rgb(225, 225, 225)&quot;,
+            &quot;fogNear&quot;:70,
+            &quot;fogFar&quot;:130
+        },
+            
+        &quot;nature&quot;: {
+                &quot;type&quot;:&quot;basic&quot;,
+                &quot;patterns&quot;: {
+                    &quot;bushes&quot;:{
+                        &quot;freqX&quot;:5,
+                        &quot;freqZ&quot;:5,
+                        &quot;elements&quot;:[
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/grass.png&quot;,&quot;width&quot;:1.5,&quot;height&quot;:1.5},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/struik.png&quot;,&quot;width&quot;:1.5,&quot;height&quot;:1.5}
+                        ]
+                    },
+                    &quot;forest&quot;:{
+                        &quot;freqX&quot;:10,
+                        &quot;freqZ&quot;:10,
+                        &quot;elements&quot;:[
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree01.png&quot;,&quot;width&quot;:8.75,&quot;height&quot;:8.91},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree02.png&quot;,&quot;width&quot;:10,&quot;height&quot;:9.84},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree03.png&quot;,&quot;width&quot;:9.59,&quot;height&quot;:8.65},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree04.png&quot;,&quot;width&quot;:6.1,&quot;height&quot;:8.65},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree05.png&quot;,&quot;width&quot;:10,&quot;height&quot;:7.66},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree06.png&quot;,&quot;width&quot;:8.94,&quot;height&quot;:13.9},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree07.png&quot;,&quot;width&quot;:10.2,&quot;height&quot;:14.53}
+                        ]
+                    },
+                    &quot;hightTrees&quot;:{
+                        &quot;freqX&quot;:12,
+                        &quot;freqZ&quot;:12,
+                        &quot;elements&quot;:[
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree06.png&quot;,&quot;width&quot;:10,&quot;height&quot;:20.68},
+                            {&quot;object&quot;:&quot;../data/graphics/textures/vegetation/tree07.png&quot;,&quot;width&quot;:12,&quot;height&quot;:22.43}
+                        ]
+                    }
+                    
+                },
+                &quot;zones&quot;: [
+                    {&quot;pattern&quot;:&quot;forest&quot;,&quot;minX&quot;:0,&quot;minZ&quot;:50,&quot;maxZ&quot;:260,&quot;maxX&quot;:114},
+                    {&quot;pattern&quot;:&quot;bushes&quot;,&quot;minX&quot;:20,&quot;minZ&quot;:50,&quot;maxZ&quot;:260,&quot;maxX&quot;:117},
+                    
+                    {&quot;pattern&quot;:&quot;hightTrees&quot;,&quot;minX&quot;:110,&quot;minZ&quot;:40,&quot;maxZ&quot;:110,&quot;maxX&quot;:200},
+                    {&quot;pattern&quot;:&quot;bushes&quot;,&quot;minX&quot;:110,&quot;minZ&quot;:80,&quot;maxZ&quot;:113,&quot;maxX&quot;:140},
+                    
+                    {&quot;pattern&quot;:&quot;hightTrees&quot;,&quot;minX&quot;:0,&quot;minZ&quot;:217,&quot;maxZ&quot;:280,&quot;maxX&quot;:230}
+                ]
+            
+         }, 
+        
+         &quot;map3D&quot;: [
+            { &quot;template&quot;: &quot;castle_wall_c&quot;, &quot;x&quot;: 214, &quot;z&quot;: 110, &quot;rY&quot;: -90 , &quot;coment&quot;:&quot;Size X:120-230, z:110-215&quot;},
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 210, &quot;z&quot;: 110 },
+            { &quot;template&quot;: &quot;castle_wall_a&quot;, &quot;x&quot;: 199, &quot;z&quot;: 110, &quot;rY&quot;: -90 },
+            { &quot;template&quot;: &quot;castle_tower1&quot;, &quot;x&quot;: 188, &quot;z&quot;: 110, &quot;rY&quot;: -90  },
+            { &quot;template&quot;: &quot;castle_gate_wall&quot;, &quot;x&quot;: 177, &quot;z&quot;: 110, &quot;rY&quot;: -90 },
+            { &quot;template&quot;: &quot;castle_metal_gate&quot;, &quot;x&quot;: 177, &quot;z&quot;: 110, &quot;rY&quot;: -90 },
+            { &quot;template&quot;: &quot;castle_tower1&quot;, &quot;x&quot;: 166, &quot;z&quot;: 110, &quot;rY&quot;: -90  },
+            { &quot;template&quot;: &quot;castle_wall_a&quot;, &quot;x&quot;: 155, &quot;z&quot;: 110, &quot;rY&quot;: -90 },
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 143, &quot;z&quot;: 110 },
+
+            { &quot;template&quot;: &quot;castle_wall_c&quot;, &quot;x&quot;: 120, &quot;z&quot;: 129},
+            { &quot;template&quot;: &quot;castle_tower1&quot;, &quot;x&quot;: 120, &quot;z&quot;: 134},
+            { &quot;template&quot;: &quot;castle_gate_wall&quot;, &quot;x&quot;: 120, &quot;z&quot;: 145},
+            { &quot;template&quot;: &quot;castle_metal_gate&quot;, &quot;x&quot;: 120, &quot;z&quot;: 145, &quot;y&quot;:2.5},
+            { &quot;template&quot;: &quot;castle_tower1&quot;, &quot;x&quot;: 120, &quot;z&quot;: 156},
+            { &quot;template&quot;: &quot;castle_wall_b&quot;, &quot;x&quot;: 120, &quot;z&quot;: 173},
+            { &quot;template&quot;: &quot;castle_tower3&quot;, &quot;x&quot;: 120, &quot;z&quot;: 192},
+            { &quot;template&quot;: &quot;castle_wall_c&quot;, &quot;x&quot;: 140, &quot;z&quot;: 215, &quot;rY&quot;: 90},
+
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 144, &quot;z&quot;: 215},
+            { &quot;template&quot;: &quot;castle_wall_b&quot;, &quot;x&quot;: 157, &quot;z&quot;: 215, &quot;rY&quot;: 90 },
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 176, &quot;z&quot;: 215},
+            { &quot;template&quot;: &quot;castle_wall_b&quot;, &quot;x&quot;: 190, &quot;z&quot;: 215, &quot;rY&quot;: 90 },
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 210, &quot;z&quot;: 215},
+            { &quot;template&quot;: &quot;castle_wall_c&quot;, &quot;x&quot;: 233, &quot;z&quot;: 199, &quot;rY&quot;: 180 },
+    
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 233, &quot;z&quot;: 132},
+            { &quot;template&quot;: &quot;castle_wall_b&quot;, &quot;x&quot;: 233, &quot;z&quot;: 150, &quot;rY&quot;: 180 },
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 233, &quot;z&quot;: 165},
+            { &quot;template&quot;: &quot;castle_wall_b&quot;, &quot;x&quot;: 233, &quot;z&quot;: 185, &quot;rY&quot;: 180 },
+            { &quot;template&quot;: &quot;castle_tower2&quot;, &quot;x&quot;: 233, &quot;z&quot;: 199},
+
+            { &quot;template&quot;: &quot;house1&quot;, &quot;x&quot;: 155, &quot;z&quot;: 150, &quot;rY&quot;: -25,  &quot;comment&quot; : &quot;houses01&quot; },
+            { &quot;template&quot;: &quot;well1&quot;, &quot;x&quot;: 135, &quot;z&quot;: 146, &quot;rY&quot;: -45  },
+            { &quot;template&quot;: &quot;bench1&quot;, &quot;x&quot;: 145, &quot;z&quot;: 153, &quot;rY&quot;: -25 },
+            { &quot;template&quot;: &quot;house22&quot;, &quot;x&quot;: 134, &quot;z&quot;: 130,&quot;rY&quot;: 110 },
+            { &quot;template&quot;: &quot;house23&quot;, &quot;x&quot;: 150, &quot;z&quot;: 125,&quot;rY&quot;: 45 },
+            { &quot;template&quot;: &quot;house4&quot;, &quot;x&quot;: 170, &quot;z&quot;: 132, &quot;rY&quot;: -25},
+
+            { &quot;template&quot;: &quot;house17&quot;, &quot;x&quot;: 135, &quot;z&quot;: 162, &quot;rY&quot;: -100,  &quot;comment&quot; : &quot;houses05&quot; },
+            { &quot;template&quot;: &quot;house18&quot;, &quot;x&quot;: 154, &quot;z&quot;: 172,&quot;rY&quot;: -45},
+            { &quot;template&quot;: &quot;house19&quot;, &quot;x&quot;: 170, &quot;z&quot;: 170,&quot;rY&quot;: -55 },
+            { &quot;template&quot;: &quot;house20&quot;, &quot;x&quot;: 174, &quot;z&quot;: 155,&quot;rY&quot;: -35 },
+            { &quot;template&quot;: &quot;house21&quot;, &quot;x&quot;: 178, &quot;z&quot;: 142,&quot;rY&quot;: 45 },
+
+            { &quot;template&quot;: &quot;house22&quot;, &quot;x&quot;: 133, &quot;z&quot;: 180,&quot;rY&quot;: 200, &quot;comment&quot; : &quot;houses06&quot; },
+            { &quot;template&quot;: &quot;house3&quot;, &quot;x&quot;: 148, &quot;z&quot;: 190, &quot;rY&quot;: -15 },
+            { &quot;template&quot;: &quot;house2&quot;, &quot;x&quot;: 168, &quot;z&quot;: 190, &quot;rY&quot;: 20 },
+            { &quot;template&quot;: &quot;house25&quot;, &quot;x&quot;: 185, &quot;z&quot;: 190, &quot;rY&quot;: -5 },
+            
+            { &quot;template&quot;: &quot;tree07&quot;, &quot;x&quot;: 145, &quot;z&quot;: 141 },
+            { &quot;template&quot;: &quot;tree07&quot;, &quot;x&quot;: 146, &quot;z&quot;: 166 },
+            
+            { &quot;template&quot;: &quot;villager01&quot;, &quot;x&quot;: 139, &quot;z&quot;: 144, &quot;path&quot;:[[171,0,131],[164,0,130],[159,0,130],[156,0,134],[149,0,141],[145,0,145],[139,0,150],[129,0,149],[127,0,144]
+            ,[133,0,140],[169,0,131],[140,0,138],[144,0,135],[145,0,131],[146,0,129],[147,0,128],[149,0,126],[148,0,128],[144,0,130],[142,0,126],[141,0,121],[149,0,117]
+            ,[160,0,121],[136,0,129],[166,0,130],[169,0,131]]},
+            { &quot;template&quot;: &quot;villager01&quot;, &quot;x&quot;: 140, &quot;z&quot;: 145, &quot;path&quot;:[[135,0,133],[136,0,136],[131,0,142],[132,0,152],[141,0,152],[145,0,163],[144,0,173],[142,0,184],[138,0,190]
+            ,[127,0,191.5],[120.5,0,191.5],[120.5,0,159],[121,0,156],[128,0,156],[133,0,150],[132,0,143],[137,0,138],[136,0,134]]},
+            { &quot;template&quot;: &quot;villager01&quot;, &quot;x&quot;: 140, &quot;z&quot;: 145, &quot;path&quot;:[[135,0,179],[136,0,179],[140,0,177],[152,0,181],[156,0,185],[157,0,190],[160,0,194],[163,0,192],[167,0,190]
+            ,[172,0,189],[176,0,188],[179,0,190],[180,0,190],[183,0,190],[185,0,190]]},
+            
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 70, &quot;z&quot;: 120, &quot;minX&quot;:60,&quot;maxX&quot;:85,&quot;minZ&quot;:117,&quot;maxZ&quot;:140},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 73, &quot;z&quot;: 150, &quot;minX&quot;:60,&quot;maxX&quot;:85,&quot;minZ&quot;:140,&quot;maxZ&quot;:163},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 80, &quot;z&quot;: 170, &quot;minX&quot;:60,&quot;maxX&quot;:85,&quot;minZ&quot;:163,&quot;maxZ&quot;:186},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 65, &quot;z&quot;: 190, &quot;minX&quot;:60,&quot;maxX&quot;:85,&quot;minZ&quot;:186,&quot;maxZ&quot;:209},
+
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 90, &quot;z&quot;: 140, &quot;minX&quot;:85,&quot;maxX&quot;:111,&quot;minZ&quot;:117,&quot;maxZ&quot;:140},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 100, &quot;z&quot;: 141, &quot;minX&quot;:85,&quot;maxX&quot;:111,&quot;minZ&quot;:140,&quot;maxZ&quot;:163},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 95, &quot;z&quot;: 149, &quot;minX&quot;:85,&quot;maxX&quot;:111,&quot;minZ&quot;:163,&quot;maxZ&quot;:186},
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 105, &quot;z&quot;: 149, &quot;minX&quot;:85,&quot;maxX&quot;:111,&quot;minZ&quot;:186,&quot;maxZ&quot;:209},
+            
+            { &quot;template&quot;: &quot;aliendog&quot;, &quot;x&quot;: 105, &quot;z&quot;: 149, &quot;minX&quot;:90,&quot;maxX&quot;:110,&quot;minZ&quot;:132,&quot;maxZ&quot;:150}
+            
+        ]
+    };
+        
+        $WORLD.showStats();        
+        $WORLD.drawGround();
+        $WORLD.drawSky();
+        $WORLD.drawNature();
+        
+        $RG.loadTemplates( function() {
+
+            var elements=$WORLD.map.map3D.length;
+            for (var i=0;i&lt;elements;i++){
+            
+                var props=$WORLD.map.map3D[i];
+                var ent=new $RG.Entity3D(props);
+                ent.addToWorld();
+                $UI.loading.setValue( ((i/elements)*0.20) +0.80);
+            }
+            
+            var path=new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0/2, 2, 100/2),
+            new THREE.Vector3(10/2, 2, 80/2),
+            new THREE.Vector3(30/2, 2, 110/2),
+            new THREE.Vector3(50, 2, 0/2),
+            new THREE.Vector3(60/2, 2, 0/2),
+            new THREE.Vector3(70/2, 2, 100/2),
+            new THREE.Vector3(85/2, 2, 55/2),
+            new THREE.Vector3(100/2, 2, 65/2),
+            new THREE.Vector3(0/2, 2, 100/2)])
+
+            $WORLD.camera.position.set(126,2,145);
+            $WORLD.controls = new $CONTROLS.FirstPersonControls ($WORLD.camera);
+            $WORLD.controls.minX=60;
+            $WORLD.controls.minZ=117;
+            $WORLD.controls.maxX=226;
+            $WORLD.controls.maxZ=209;
+            $WORLD.controls.showPosition();
+            $WORLD.addToListUpdate ($WORLD.controls);
+
+            setTimeout(function() {
+                $WORLD.startAnimation();
+                $UI.loading.hide();
+                },500
+            )
+        },function () {
+            //error
+        },function (template,i,elements) {
+            //Calculo un 75% para la carga de las plantillas
+            $UI.loading.setValue( ((i/elements)*0.75) +0.05);
+        }
+        );
+    });
+})
+            
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- butons --&gt;
+&lt;div id=&quot;sample-info&quot;&gt;
+&lt;/div&gt;
+&lt;div id=&quot;sample-buttons&quot; class=&quot;sample-btn&quot;&gt;
+&lt;/div&gt;
+&lt;div id=&quot;lyr_loading&quot;&gt;
+    &lt;div id=&quot;lyr_loading_background&quot;&gt;&lt;/div&gt;
+    &lt;div id=&quot;lyr_loading_logo&quot; class=&quot;ui_logo&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2>core/controls/controls_v01.js</h2>
+<pre><code class="javascript">
+var $CONTROLS = $CONTROLS || {};
+
+$CONTROLS.FirstPersonControls = function ( object, domElement ) {
+
+    this.object = object;
+    this.target = new THREE.Vector3( 0, 0, 0 );
+
+    this.domElement = ( domElement !== undefined ) ? domElement : document;
+
+    this.enabled = true;
+
+    this.eyeY=2;
+    this.movementSpeed = 3.5;
+    this.movementSpeedRun = 6.0;
+    this.lookSpeed = 0.02;
+
+    this.mouseX = 0;
+    this.mouseY = 0;
+
+    this.lon = 0;
+    this.theta = 0;
+
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.run = false;
+    this.jump = false;
+    this.showPosition=false;
+    
+    this.minX=0;
+    this.maxX=256;
+    this.minZ=0;
+    this.maxZ=256;
+
+    this.viewHalfX = 0;
+
+    if ( this.domElement !== document ) {
+        this.domElement.setAttribute( &#39;tabindex&#39;, - 1 );
+    }
+
+
+
+    this.handleResize = function () {
+
+        if ( this.domElement === document ) {
+            this.viewHalfX = window.innerWidth / 2;
+        } else {
+            this.viewHalfX = this.domElement.offsetWidth / 2;
+        }
+
+    };
+
+    this.getPosition = function ( ) {
+        return this.object.position;
+    }
+    
+    this.showPosition = function () {
+        var o=document.createElement(&#39;div&#39;);
+        o.id=&quot;panelInfoControls&quot;;
+        document.body.appendChild(o);
+        this.panelInfo=o;
+        this.showPosition=true;
+    }
+
+    this.onMouseMove = function ( event ) {
+
+        if ( this.domElement === document ) {
+
+            this.mouseX = event.pageX - this.viewHalfX;
+
+
+        } else {
+
+            this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
+
+        }
+
+    };
+
+    this.onKeyDown = function ( event ) {
+
+        switch ( event.keyCode ) {
+
+            case 38: /*up*/
+            case 87: /*W*/ this.moveForward = true; break;
+
+            case 37: /*left*/
+            case 65: /*A*/ this.moveLeft = true; break;
+
+            case 40: /*down*/
+            case 83: /*S*/ this.moveBackward = true; break;
+
+            case 39: /*right*/
+            case 68: /*D*/ this.moveRight = true; break;
+            
+            case 16: /*shift*/ this.run = true; break;
+
+        }
+
+    };
+
+    this.onKeyUp = function ( event ) {
+
+        switch ( event.keyCode ) {
+
+            case 38: /*up*/
+            case 87: /*W*/ this.moveForward = false; break;
+
+            case 37: /*left*/
+            case 65: /*A*/ this.moveLeft = false; break;
+
+            case 40: /*down*/
+            case 83: /*S*/ this.moveBackward = false; break;
+
+            case 39: /*right*/
+            case 68: /*D*/ this.moveRight = false; break;
+
+            case 16: /*shift*/ this.run = false; break;
+
+        }
+
+    };
+
+    this.update = function( delta ) {
+
+        if ( this.enabled === false ) return;
+
+        var actualMoveSpeed = delta * (this.run?this.movementSpeedRun:this.movementSpeed);
+
+        if ( this.moveForward) this.object.translateZ( - (actualMoveSpeed) );
+        if ( this.moveBackward) this.object.translateZ( actualMoveSpeed );
+
+        if ( this.moveLeft) this.object.translateX( - actualMoveSpeed );
+        if ( this.moveRight) this.object.translateX( actualMoveSpeed );
+
+        this.object.position.y=this.eyeY;
+        if (this.minX&gt;this.object.position.x) {
+            this.object.position.x=this.minX;
+        } else if (this.maxX&lt;this.object.position.x) {
+            this.object.position.x=this.maxX;
+        }
+        if (this.minZ&gt;this.object.position.z) {
+            this.object.position.z=this.minZ;
+        } else if (this.maxZ&lt;this.object.position.z) {
+            this.object.position.z=this.maxZ;
+        }
+        if (this.showPosition) {
+            this.panelInfo.innerHTML=&quot; x: &quot;+Math.round(this.object.position.x,0.1)+&quot; z: &quot;+Math.round(this.object.position.z,0.1)+&quot; &quot;;
+        }
+        var actualLookSpeed = delta * this.lookSpeed;
+
+        this.lon += this.mouseX * actualLookSpeed;
+        this.theta = THREE.Math.degToRad( this.lon );
+
+        var targetPosition = this.target,
+        position = this.object.position;
+
+        targetPosition.x = position.x + 100 * Math.cos( this.theta );
+        targetPosition.z = position.z + 100 * Math.sin( this.theta );
+
+        this.object.lookAt( targetPosition );
+
+    };
+
+    this.dispose = function() {
+        this.domElement.removeEventListener( &#39;mousemove&#39;, _onMouseMove, false );
+        window.removeEventListener( &#39;keydown&#39;, _onKeyDown, false );
+        window.removeEventListener( &#39;keyup&#39;, _onKeyUp, false );
+    }
+
+    var _onMouseMove = bind( this, this.onMouseMove );
+    var _onKeyDown = bind( this, this.onKeyDown );
+    var _onKeyUp = bind( this, this.onKeyUp );
+
+    this.domElement.addEventListener( &#39;mousemove&#39;, _onMouseMove, false );
+    window.addEventListener( &#39;keydown&#39;, _onKeyDown, false );
+    window.addEventListener( &#39;keyup&#39;, _onKeyUp, false );
+
+    function bind( scope, fn ) {
+        return function () {
+            fn.apply( scope, arguments );
+        };
+    }
+
+    this.handleResize();
+
+};
+
+</code></pre>
+
+<h2>core/ai/ai_random_v01.js</h2>
+<pre><code class="javascript">
+var $AIS = $AIS || {};
+
+$AIS.RandomAI = function (object, prop) {
+    this._object=object;
+    this.velocity=3; //unidades por segundo
+    if (prop.velocity){
+        this.velocity=prop.velocity;
+    }
+    this.minX=prop.minX;
+    this.maxX=prop.maxX;
+    this.minZ=prop.minZ;
+    this.maxZ=prop.maxZ;
+    this.directionWalk = new THREE.Vector3(0.5, 0, 0.5);
+    this.changeDirection();
+};
+
+$AIS.RandomAI.prototype.changeDirection = function () {
+    this._lastRandomX = Math.random();
+    this._lastRandomZ = 1 - this._lastRandomX;
+    if (Math.random() &lt; 0.5) {
+        this._lastRandomX = this._lastRandomX * -1;
+    }
+    if (Math.random() &lt; 0.5) {
+        this._lastRandomZ = this._lastRandomZ * -1;
+    }
+    this.directionWalk.x = this._lastRandomX;
+    this.directionWalk.z = this._lastRandomZ;
+    var pos = this.directionWalk.clone();
+    pos.add(this._object.position);
+    this._object.lookAt(pos);
+}
+
+$AIS.RandomAI.prototype.update = function ( delta ) {
+    var p=this._object.position;
+    var x=p.x+ this.directionWalk.x * this.velocity * delta;
+    var z=p.z+ this.directionWalk.z * this.velocity * delta;
+    var bChange=false;
+    if (x&lt;this.minX) {
+        x=this.minX;bChange=true;
+    } else if (x&gt;this.maxX) {
+        x=this.maxX;bChange=true;
+    };
+    if (z&lt;this.minZ) {
+        z=this.minZ;bChange=true;
+    } else if (z&gt;this.maxZ) {
+        z=this.maxZ;bChange=true;
+    };
+    if (bChange) {
+        this.changeDirection();
+    };
+    p.set(x, p.y, z)
+}
+
+$AIS.RandomAI.prototype.getPosition = function ( ) {
+    return this._object.position;
+}
+
+</code></pre>
+
+<h2>core/ai/ai_path_v01.js</h2>
+<pre><code class="javascript">
+
+var $AIS = $AIS || {};
+
+$AIS.PathAI = function (object, prop) {
+    var vecs=[];
+    for (var i=0;i<prop.path.length;i++){
+        vecs.push(new THREE.Vector3(prop.path[i][0], prop.path[i][1], prop.path[i][2]))
+    }
+    this.path=new THREE.CatmullRomCurve3(vecs);
+    this._object=object;
+    this._pos=0;
+    this.velocity=1; //unidades por segundo
+    if (prop.velocity){
+        this.velocity=prop.velocity;
+    }
+    this._factor=this.velocity/this.path.getLength();
+    if (prop.showPath) {
+        this.showPath();
+    }
+};
+
+$AIS.PathAI.prototype.update = function ( delta ) {
+
+    this._object.position.copy(this.path.getPointAt(this._pos));
+    this._pos += (this._factor * delta);
+    if (this._pos > 1) {this._pos = 0;};
+    this._object.lookAt(this.path.getPointAt(this._pos));
+}
+
+$AIS.PathAI.prototype.showPath = function ( ) {
+    var geometry = new THREE.Geometry();
+    var points = this.path.getPoints(50);
+
+    var material = new THREE.LineBasicMaterial({
+        color: 0xff00f0
+    });
+
+    geometry.vertices = points;
+    var line = new THREE.Line(geometry, material);
+    line.position.set(0,0.25,0)
+    $WORLD.scene.add(line);
+}
+
+$AIS.PathAI.prototype.getPosition = function ( ) {
+    return this._object.position;
+}
+
+</code></pre>
+
+<h2>core/world/template3D_v01.js</h2>
+<pre><code class="javascript">
+var $RG = $RG || {};
+$RG.templates=[];
+
+$RG.Types = $RG.Types || {};
+$RG.Types.type3D = { &quot;OBJ&quot;: 0, &quot;DAE&quot;:1, &quot;JSON&quot;:2, &quot;SPRITE&quot;:3 };
+
+$RG.loadTemplates = function(fSuc, fFail, fProgress) {
+    var i=0;
+    var list=Object.keys($RG.templates);
+    var _load = function () {
+        if (list.length==i) {
+            fSuc();
+            return;
+        }
+        var ent=$RG.templates[list[i]].template3D=new $RG.Template3D(list[i]);
+        if (fProgress) {fProgress(list[i],i+1,list.length);}
+        i++;
+        ent.load({},_load, fFail);
+    }
+    _load();
+};
+
+//CLASSE: Template3D    
+$RG.Template3D = function (id) {
+        this.id = id;
+        this._template=$RG.templates[id];
+        this.isReady = false;
+        this.mesh = null; 
+};
+
+$RG.Template3D.prototype.load = function (oPars, fSuc, fFail) {
+    var temp=this._template;
+    if (!(&quot;type&quot; in temp)) temp.type = $RG.Types.type3D.OBJ;
+    if (temp.type == $RG.Types.type3D.OBJ) {
+        this._loadOBJ(oPars,fSuc,fFail);
+    } else if (temp.type == $RG.Types.type3D.DAE) {
+        this._loadDAE(oPars,fSuc,fFail);
+    } else if (temp.type == $RG.Types.type3D.SPRITE) {
+        this._loadSPRITE(oPars,fSuc,fFail);
+    } else {
+        fFail();
+    }
+}
+
+$RG.Template3D.prototype._loadOBJ = function (oPars, fSuc, fFail) {
+        var $O = this;
+        var onProgress = function (xhr) {    };
+        var onError = function (xhr) { if (fFail) { fFail($O); } };
+        var mtlLoader = new THREE.MTLLoader();
+        var pathArray = $O._template.model.split(&#39;/&#39;);
+        var mP = &#39;&#39;;
+        for (var i = 0; i &lt; pathArray.length-1; i++) {
+            mP += pathArray[i];
+            mP += &quot;/&quot;;
+        }
+        var model = pathArray[pathArray.length - 1];
+        mtlLoader.setPath(mP);
+        model=model.substr(0,model.length - 4)
+        mtlLoader.load(model + &#39;.mtl&#39;, function (materials) {
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath(mP);
+            objLoader.load(model + &#39;.obj&#39;, function (object) {
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                        child.castShadow = true;
+                    }
+                });
+                $O.mesh = object;
+                $O.mesh.castShadow = true;
+                $O.isReady = true;
+                if (fSuc) { fSuc($O); }
+
+            }, onProgress, onError);
+
+        }, onProgress, onError);
+};
+
+$RG.Template3D.prototype._loadDAE = function (oPars, fSuc, fFail) {
+    var $O = this;
+    var temp=$O._template;
+    var loader = new THREE.ColladaLoader();
+    var onProgress = function (xhr) {    };
+    var onError = function (xhr) { if (fFail) { fFail($O); } };
+    loader.load(temp.model, function (collada) {
+        var object = collada.scene;
+        var mesh=null;
+        object.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true;
+                mesh=child;
+               }
+        });
+
+        if (temp.scale) {
+            mesh.scale.x = temp.scale.x;
+            mesh.scale.y = temp.scale.y;
+            mesh.scale.z = temp.scale.z; //Corregir escala
+        }
+        if (temp.rotate) {
+            if (temp.rotate.x) {
+                mesh.rotateX (temp.rotate.x * Math.PI / 180);
+            };
+            if (temp.rotate.y) {
+                mesh.rotateY (temp.rotate.y * Math.PI / 180);
+            };
+            if (temp.rotate.z) {
+                mesh.rotateZ (temp.rotate.z * Math.PI / 180);
+            }//Corregir rotaci&#243;n
+        }
+        $O.mesh = object;
+        $O.isReady = true;
+        fSuc(mesh);
+    }, onProgress, onError);
+};
+
+$RG.Template3D.prototype._loadSPRITE = function (oPars, fSuc, fFail) {
+    var $O = this;
+    var onProgress = function (xhr) {    };
+    var onError = function (xhr) { if (fFail) { fFail($O); } };
+    $WORLD.textureLoader.load($O._template.model, function (texture) {
+        var mat = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false, transparent: true,fog:true} );
+        var object =new THREE.Sprite(mat);
+        object.scale.y=$O._template.height;
+        object.scale.x=$O._template.width;
+        $O.mesh = object;
+        $O.isReady = true;
+        fSuc($O.mesh);
+    }, onProgress, onError);
+};
+
+</code></pre>
+
+<h2>core/world/entity3D_v02.js</h2>
+<pre><code class="javascript">
+var $RG = $RG || {};
+$RG.entities=[];
+
+$RG.Entity3D = function (properties) {
+    this.template=properties.template
+    this.prop=properties;
+    this.mesh=null;
+    $RG.entities.push(this)
+}
+
+$RG.Entity3D.prototype.addToWorld = function () {
+    var prop=this.prop;
+    var templ=$RG.templates[prop.template];
+
+    //Clonar la figura 3D, posicionar y rotar
+    var mesh=templ.template3D.mesh.clone();
+    var y=0
+    mesh.position.set(prop.x, ((prop.y)?prop.y:0), prop.z);
+    if (!(prop.rY)) prop.rY=0;
+    if (templ.type=3) {
+        mesh.translateY(templ.height/2-0.05);
+    }
+    mesh.rotateY(prop.rY * Math.PI / 180);
+    this.mesh=mesh;
+    
+    //Animar el objeto si tienen una animaci&#243;n
+    if (templ.animation) {
+        mesh.traverse(function (child) {
+            if (child instanceof THREE.SkinnedMesh) {
+                var animation = new THREE.Animation(child, child.geometry.animation);
+                animation.play();
+            }
+        })
+    };
+   
+    //Aplicar la inteligencia artificial si hay definida
+    if (templ.ai) {
+    
+        this.ai=new $AIS[templ.ai](this.mesh, this.prop);
+        $WORLD.addToListUpdate (this.ai); 
+    }
+    $WORLD.scene.add(mesh);
+    return mesh;
+};
+
+</code></pre>
+
+<h2>core/world/nature_v01.js</h2>
+<pre><code class="javascript">
+//****************************
+// CREA LA NATURALEZA
+//****************************
+
+$WORLD.drawNature = function () {
+
+        var nat=$WORLD.map.nature;
+        //CARGAR EN MEMORIA TODOS LOS SPRITES
+        var list=Object.keys(nat.patterns);
+        for (var i=0;i&lt;list.length;i++) {
+            var pat=nat.patterns[list[i]];
+            for (var n=0;n&lt;pat.elements.length;n++) {
+                var el=pat.elements[n];
+                var mat = new THREE.SpriteMaterial( { map: $WORLD.textureLoader.load(el.object), useScreenCoordinates: false, transparent: true,fog:true} );
+                var obj =new THREE.Sprite(mat);
+                obj.scale.y=el.height;
+                obj.scale.x=el.width;
+                el._sprite = obj;
+            }
+        }
+        //PARA CADA ZONA A&#209;ADIR LOSaerboles
+        for (var j=0;j&lt;nat.zones.length;j++) {
+            var zon=nat.zones[j];
+            var pat=nat.patterns[zon.pattern];
+            for (var x=zon.minX;x&lt;zon.maxX-pat.freqX;x+=pat.freqX) {
+                for (var z=zon.minZ;z&lt;zon.maxZ-pat.freqZ;z+=pat.freqZ) {
+                    var i=Math.round(Math.random()*(pat.elements.length-1));
+                    var el=pat.elements[i];
+                    var obj2=el._sprite.clone();z
+                    obj2.position.set(x+(Math.random()*pat.freqX), el.height/2-0.05, z+(Math.random()*pat.freqZ));
+                    $WORLD.scene.add(obj2);
+                }
+            }
+        }
+};
+
+</code></pre>
+
+<h2>core/world/sky_v01.js</h2>
+<pre><code class="javascript">
+//****************************
+// CREA EL CIELO, Y LAS LUCES
+//****************************
+
+$WORLD.sky= {
+    update:function(delta){
+        var p = $WORLD.controls.getPosition();
+        $WORLD.sky.skyBox.position.set(p.x, 0, p.z);
+    }    
+};
+
+$WORLD.drawSky = function () {
+    var sky = $WORLD.map.sky;
+    if (sky.type==&quot;skybox&quot;){
+        $WORLD.drawSkybox(sky);
+    } else if (sky.type==&quot;skysphere&quot; &amp;&amp; sky.texture!=&quot;&quot;) {
+        $WORLD.drawSkysphere(sky);
+    } else {
+        $WORLD.drawSkysphereNoImg(sky);
+    }
+
+    //CREAR LA LUZ DE AMBIENTE
+    $WORLD.ambientLight.color = new THREE.Color(sky.colorAmbient);
+    $WORLD.ambientLight.intensity = sky.intensityAmbient;
+
+    //CREAR LA LUZ DEL SOL
+    var light = new THREE.DirectionalLight(sky.sunlightcolor, sky.sunlightintensity);
+    light.castShadow = true;
+    light.shadow.mapSize.width = 2 * 512; 
+    light.shadow.mapSize.height = 2 * 512;
+    light.shadow.camera.near = 0;
+    light.shadow.camera.far = 50; //ALTURA DEL CUBO
+
+    //DES DEL PUNTO CENTRAL INDICAN EL CUADRADO.
+    light.shadow.camera.top = 25; //X
+    light.shadow.camera.right = 25;
+    light.shadow.camera.left = -25;
+    light.shadow.camera.bottom = -25;
+
+    light.shadow.camera.visible = true;
+    $WORLD.sky.skyBox.add(light);
+    
+    light.position.set(sky.sunlightposition.x, sky.sunlightposition.y, sky.sunlightposition.z); 
+    light.target = $WORLD.sky.skyBox;
+    
+    $WORLD.scene.fog.near = sky.fogNear;
+    if (sky.fogFar &gt; 0 &amp;&amp; ($WORLD.distance - $WORLD.distance / 4) &gt; sky.fogFar) {
+        $WORLD.scene.fog.far = sky.fogFar;
+    }
+    $WORLD.scene.fog.color = new THREE.Color(sky.fogColor);
+    $WORLD.renderer.setClearColor($WORLD.scene.fog.color, 1);
+    
+    $WORLD.addToListUpdate ($WORLD.sky);
+};
+
+$WORLD.drawSkybox=function (sky){
+    var cubemap = new THREE.CubeTextureLoader().load( sky.texture );
+    cubemap.format = THREE.RGBFormat;
+        
+    var shader = THREE.ShaderLib[&#39;cube&#39;]; 
+    shader.uniforms[&#39;tCube&#39;].value = cubemap; 
+
+    var skyBoxMaterial = new THREE.ShaderMaterial( {
+    fragmentShader: shader.fragmentShader,
+    vertexShader: shader.vertexShader,
+    uniforms: shader.uniforms,
+    depthWrite: false,
+    side: THREE.BackSide
+    });
+    
+    var distance=($WORLD.distance*2-20);
+    var c = Math.pow ((distance*distance)/2,0.5);
+    var skyBox = new THREE.Mesh(  new THREE.BoxGeometry(c, c, c),  skyBoxMaterial);
+    $WORLD.scene.add(skyBox);
+    $WORLD.sky.skyBox = skyBox;
+
+};
+
+$WORLD.drawSkysphere=function (sky){
+    var skyTexture = $WORLD.textureLoader.load(sky.texture);
+    var geometry = new THREE.SphereGeometry($WORLD.distance - 10, 30, 20);
+
+    var uniforms = {
+        texture: { type: &#39;t&#39;, value: skyTexture }
+    };
+    var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: &quot;varying vec2 vUV;&quot; +
+        &quot;\n&quot; +
+        &quot;void main() {  &quot; +
+        &quot;    vUV = uv;&quot; +
+        &quot;    vec4 pos = vec4(position, 1.0);&quot; +
+        &quot;    gl_Position = projectionMatrix * modelViewMatrix * pos;&quot; +
+        &quot;}&quot;,
+        fragmentShader: &quot;uniform sampler2D texture;&quot; +
+        &quot;varying vec2 vUV;&quot; +
+        &quot;&quot; +
+        &quot;    void main() {&quot; +
+        &quot;        vec4 sample = texture2D(texture, vUV);&quot; +
+        &quot;        gl_FragColor = vec4(sample.xyz, sample.w);&quot; +
+        &quot;    }&quot;
+    });
+
+    var skyBox = new THREE.Mesh(geometry, material);
+    skyBox.scale.set(-1, 1, 1);
+    skyBox.rotation.order = &#39;XZY&#39;;
+    skyBox.renderDepth = $WORLD.distance;
+    $WORLD.scene.add(skyBox);
+    $WORLD.sky.skyBox = skyBox;
+};
+
+$WORLD.drawSkysphereNoImg=function (sky){
+
+    var vertexShader =&quot;varying vec3 vWorldPosition;&quot;+
+    &quot; &quot;+
+    &quot;void main() {&quot;+
+    &quot;    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );&quot;+
+    &quot;    vWorldPosition = worldPosition.xyz;&quot;+ //xyz
+    &quot; &quot;+
+    &quot;    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );&quot;+
+    &quot;}&quot;;
+
+    var fragmentShader =&quot;uniform vec3 topColor;&quot;+
+    &quot;uniform vec3 bottomColor;&quot;+
+    &quot;uniform float offset;&quot;+
+    &quot;uniform float exponent;&quot;+
+    &quot; &quot;+
+    &quot;varying vec3 vWorldPosition;&quot;+
+    &quot; &quot;+
+    &quot;void main() {&quot;+
+    &quot;    float h = normalize( vWorldPosition + offset ).y;&quot;+
+    &quot;    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( h, exponent ), 0.0 ) ), 1.0 );&quot;+
+    &quot;}&quot;;
+
+    var uniforms = {
+            topColor: {type: &quot;c&quot;, value: new THREE.Color(sky.topColor)}, bottomColor: {type: &quot;c&quot;, value: new THREE.Color(sky.bottomColor)},
+            offset: {type: &quot;f&quot;, value: 0}, exponent: {type: &quot;f&quot;, value: 0.5} 
+    }
+    var skyMaterial = new THREE.ShaderMaterial({vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide, fog: false});
+     
+    var skyBox = new THREE.Mesh( new THREE.SphereGeometry($WORLD.distance - 10, 30, 20), skyMaterial);
+
+    skyBox.rotation.order = &#39;XZY&#39;;
+    skyBox.renderDepth = $WORLD.distance;
+    
+    $WORLD.scene.add(skyBox);
+    $WORLD.sky.skyBox = skyBox;
+}
+</code></pre>
+
+<h2>core/world/ground_v01.js</h2>
+<pre><code class="javascript">
+//****************************
+// CREA EL SUELO DEL MUNDO
+//****************************
+
+$WORLD.drawGround = function () {
+    var map = $WORLD.map;
+    var groundTexture = $WORLD.textureLoader.load(map.ground.texture);
+    var x = $WORLD.distance * 2.25 + map.x
+    var z = $WORLD.distance * 2.25 + map.z
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(x / 2, z / 2); 
+    groundTexture.anisotropy = 16;
+    var groundMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, map: groundTexture });
+    var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(x, z), groundMaterial);
+    mesh.position.y = 0;
+    mesh.position.x = map.x / 2;
+    mesh.position.z = map.z / 2;
+    mesh.rotation.x = - Math.PI / 2;
+    mesh.receiveShadow = true;
+    $WORLD.scene.add(mesh);
+}
+
+</code></pre>
+
+<h2>core/world/world_v01.js</h2>
+<pre><code class="javascript">
+//*******************************
+//DEFINIR EL MUNDO
+//*******************************
+var $WORLD = $WORLD || {};
+$WORLD.distance = 80;
+$WORLD.renderer = null;
+$WORLD.scene = null;
+$WORLD.clock = null;
+$WORLD.map=null;
+$WORLD.controls=null;
+$WORLD._objUpdate = [];
+
+$WORLD.init3D=function(oPars, fSuc, fFail) {
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    $WORLD.renderer = renderer;
+    $WORLD.scene = new THREE.Scene();
+    
+    $WORLD.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, $WORLD.distance);
+    $WORLD.camera.position.set(0, 2, 0);
+    $WORLD.camera.lookAt(new THREE.Vector3(0,2,0) );
+    
+    $WORLD.clock = new THREE.Clock();
+    $WORLD.controls={
+        getPosition: function(){
+            return $WORLD.camera.position;
+        }
+    } 
+
+    $WORLD.textureLoader = new THREE.TextureLoader();
+    
+    $WORLD.ambientLight = new THREE.AmbientLight(0xffffff,1);
+    $WORLD.scene.add($WORLD.ambientLight);
+ 
+    $WORLD.scene.fog = new THREE.Fog(0xffffff, 5, ($WORLD.distance - $WORLD.distance / 4)); //niebla
+    $WORLD.renderer.setClearColor($WORLD.scene.fog.color, 1);
+    
+    window.addEventListener(&#39;resize&#39;, onWindowResize, false);
+    THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+    fSuc();
+}
+
+$WORLD.showStats=function() {
+    if (!($WORLD.stats)) {
+        $WORLD.stats = new Stats();
+        $WORLD.stats.setMode(0);
+        document.body.appendChild($WORLD.stats.domElement);
+        $WORLD.addToListUpdate($WORLD.stats);
+    };
+
+}
+
+$WORLD.startAnimation = function () {
+    $WORLD.animate();
+}
+
+$WORLD.pauseAnimation = function () {
+    window.cancelAnimationFrame( $WORLD.idAnim );
+}
+
+$WORLD.addToListUpdate = function (obj) {
+    $WORLD._objUpdate.push(obj);
+}
+
+$WORLD.animate = function () {
+    $WORLD.idAnim = requestAnimationFrame($WORLD.animate);
+    var delta = $WORLD.clock.getDelta();
+    for (var i = 0; i &lt; $WORLD._objUpdate.length; i++) {
+        $WORLD._objUpdate[i].update(delta);
+    };
+    THREE.AnimationHandler.update(delta);
+    $WORLD.renderer.render($WORLD.scene, $WORLD.camera);
+
+};
+
+function onWindowResize() {
+    $WORLD.camera.aspect = window.innerWidth / window.innerHeight;
+    $WORLD.camera.updateProjectionMatrix();
+    $WORLD.renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+</code></pre>
+
+</div>
+
+</body>
+</html>

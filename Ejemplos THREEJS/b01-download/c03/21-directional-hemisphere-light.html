@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Hemisphere Light</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    var directionalLightHelper;
+    var hemisphereLight;
+    var directionalLight;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        //Load objects
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load("../data/graphics/textures/terrain/grass1.jpg");
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(5,5);
+        
+        var planeGeometry = new THREE.PlaneGeometry(35, 35);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+        
+        //Grass
+        var grassTexture=textureLoader.load("../data/graphics/textures/vegetation/grass.png");
+        var grassGeometry = new THREE.PlaneGeometry(6, 6);
+        var grassMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, map:grassTexture, transparent:true, opacity:1, side: THREE.DoubleSide, depthWrite: false, depthTest: false });
+        var grass = new THREE.Mesh(grassGeometry, grassMaterial);
+        grass.position.y = 2.7;
+        grass.position.x=1;
+    
+        var grass0=grass.clone();
+        scene.add(grass0);
+        var grass1=grass.clone();
+        scene.add(grass1)
+        grass1.rotation.y=0.25*Math.PI;
+        var grass2=grass.clone()
+        grass2.rotation.y=-0.25*Math.PI;
+        scene.add(grass2)
+        var grass3=grass.clone()
+        grass3.rotation.y=0.5*Math.PI;
+        scene.add(grass3)
+        
+        //Crates
+        var cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+        var textureLoader= new THREE.TextureLoader();
+        var texture=textureLoader.load("../data/graphics/textures/crate/crate1.jpg");
+        var cubeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:texture, transparent:true, opacity:1});
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+        
+        cube.position.set(6,1.5,6)
+        scene.add(cube);
+        
+        var cube1=cube.clone();
+        scene.add(cube1);
+        cube1.position.set(6,1.5,-11)
+        
+        cube1=cube.clone();
+        scene.add(cube1);
+        cube1.position.set(-4,1.5,-11)
+
+        //Walls
+        var wallTexture=textureLoader.load("../data/graphics/textures/wall/wall.jpg");
+        wallTexture.wrapS=THREE.RepeatWrapping;
+        wallTexture.wrapT=THREE.RepeatWrapping;
+        wallTexture.repeat.set(3,2);
+        var wallGeometry = new THREE.BoxGeometry(12, 6, 1);
+        var wallMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:wallTexture, transparent:true, opacity:1});
+        var wall = new THREE.Mesh(wallGeometry, wallMaterial);
+        wall.position.y = 3;
+        wall.position.z = -8;
+        wall.castShadow = true;
+        wall.receiveShadow = true;
+        scene.add(wall)
+        var wall1=wall.clone();
+        scene.add(wall1)
+        wall1.rotation.y=0.5 * Math.PI;
+        wall1.position.x = -6.5;
+        wall1.position.z = -2.5;
+        
+        // Torus
+        var material = new THREE.MeshPhongMaterial({color: 0x2194CE, emissive: 0x000000, specular:0x111111,shininess:80,shading:THREE.SmoothShading});
+        var geometry = new THREE.TorusKnotGeometry( 2.5, 0.5, 100, 16 );
+        var mesh = new THREE.Mesh( geometry , material);
+        mesh.position.set(-4,4,8);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        scene.add(mesh);
+        
+        camera.position.x = 17;
+        camera.position.y = 19;
+        camera.position.z = 14;
+        camera.lookAt(scene.position);
+        camera.position.x = 27;
+        camera.position.y = 29;
+        camera.position.z = 24;
+        
+        // Ligths
+        hemisphereLight = new THREE.HemisphereLight(0xffffff,0xffffff,0.4);
+        hemisphereLight.position.set (0,20,0);
+        scene.add(hemisphereLight);
+        
+        directionalLight = new THREE.DirectionalLight(0xffffff, 2 );
+        directionalLight.position.set(10, 20 , 20); 
+        directionalLight.target.position.set(0, 0 , 0); 
+        directionalLight.shadow.camera.near = 0;
+        directionalLight.shadow.camera.far = 50; //ALTURA DEL CUBO
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 3 * 512; 
+        directionalLight.shadow.mapSize.height = 3 * 512;
+        directionalLight.shadow.camera.top = 25; //X
+        directionalLight.shadow.camera.right = 25;
+        directionalLight.shadow.camera.left = -25;
+        directionalLight.shadow.camera.bottom = -25;
+        directionalLight.shadow.camera.visible = true;
+        scene.add(directionalLight);
+
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.hemisphereLight_visible=true;
+            this.hemisphereLight_skyColor = 0xffffff;
+            this.hemisphereLight_groundColor = 0xffffff;
+            this.hemisphereLight_intensity=0.4;
+            this.directionalLight_visible=true;
+            this.directionalLight_color = 0xffffff;
+            this.directionalLight_intensity=2;
+            this.directionalLight_castShadow = true;
+            this.directionalLight_move = false;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+        var fal=gui.addFolder('THREE.hemisphereLight');
+        fal.add(controlObject, 'hemisphereLight_visible').name('visible');
+        fal.addColor(controlObject, 'hemisphereLight_skyColor').name('skyColor');
+        fal.addColor(controlObject, 'hemisphereLight_groundColor').name('groundColor');
+        fal.add(controlObject, 'hemisphereLight_intensity', 0, 2).name('intensity');
+        var fdl=gui.addFolder('THREE.DirectionalLight');
+        fdl.add(controlObject, 'directionalLight_visible').name('visible');
+        fdl.addColor(controlObject, 'directionalLight_color').name('color');
+        fdl.add(controlObject, 'directionalLight_intensity', 0, 4).name('intensity');
+        fdl.add(controlObject, 'directionalLight_castShadow').name('castShadow');
+        fdl.add(controlObject, 'directionalLight_move').name('move');
+    }
+
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+    
+        hemisphereLight.visible=control.hemisphereLight_visible;
+        hemisphereLight.skyColor=new THREE.Color(control.hemisphereLight_skyColor);
+        hemisphereLight.groundColor=new THREE.Color(control.hemisphereLight_groundColor);
+        hemisphereLight.intensity=control.hemisphereLight_intensity;
+        directionalLight.visible=control.directionalLight_visible;
+        directionalLight.color=new THREE.Color(control.directionalLight_color);
+        directionalLight.intensity=control.directionalLight_intensity;
+        directionalLight.castShadow=control.directionalLight_castShadow;
+
+        if (control.directionalLight_move) {
+            directionalLight.position.y = directionalLight.position.y * Math.cos(rotSpeed*0.5) + directionalLight.position.z * Math.sin(rotSpeed*0.5);
+            directionalLight.position.z = directionalLight.position.z * Math.cos(rotSpeed*0.5) - directionalLight.position.y * Math.sin(rotSpeed*0.5);
+        }
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    window.addEventListener('resize', handleResize, false);
+
+</script>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

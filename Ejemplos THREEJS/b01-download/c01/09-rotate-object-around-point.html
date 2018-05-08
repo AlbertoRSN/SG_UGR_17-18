@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - rotate object around point</title>
+    <meta charset="utf-8">
+    <style>
+    body {
+        background-color: #ffffff;
+        margin: 0;
+        overflow: hidden;
+    }
+    </style>
+    <script src="../frameworks/three.min.js"></script>
+    <script>
+    var camera, scene, renderer;
+    var geometry, material, mesh, ref, pivotPoint;
+    var clock;
+
+        function init() {
+            renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(0xffffff,1);
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            scene = new THREE.Scene();
+
+            geometry = new THREE.SphereGeometry( 0.5, 20, 20 );
+            material = new THREE.MeshPhongMaterial({ color: 0xff9800});
+            ref = new THREE.Mesh( geometry, material );
+            ref.position.set(0,0,0);
+            scene.add( ref );
+
+            pivotPoint = new THREE.Object3D();
+            pivotPoint.position.set(0,0,0);
+            scene.add( pivotPoint );
+            
+            geometry = new THREE.CubeGeometry( 0.5, 0.5, 0.5 );
+            material = new THREE.MeshPhongMaterial({ color: 0x0000ff});
+            mesh = new THREE.Mesh( geometry, material );
+            pivotPoint.add(mesh);
+            mesh.position.set(0,2,0)
+            
+            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 100 );
+            camera.position.set (0,0,-4);
+            camera.lookAt(pivotPoint.position);
+            
+            var ambient = new THREE.AmbientLight(0xffffff,0.3);
+            scene.add(ambient);
+            var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+            light.position.set(10, 20 , 15); 
+            light.castShadow = true;
+            scene.add(light);
+
+            clock = new THREE.Clock();
+            window.addEventListener( 'resize', onWindowResize, false );
+
+        }
+
+        var dir=1;
+        function animate() {
+            requestAnimationFrame( animate );
+            
+            var delta =  clock.getDelta();
+
+            pivotPoint.rotation.z += delta * 2;
+            
+            renderer.render( scene, camera );
+        }
+        
+        function onWindowResize() {
+
+                windowHalfX = window.innerWidth / 2;
+                windowHalfY = window.innerHeight / 2;
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+        }
+        
+        window.addEventListener("DOMContentLoaded", function(event) {
+            init();
+            animate();
+        });
+        
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>  
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

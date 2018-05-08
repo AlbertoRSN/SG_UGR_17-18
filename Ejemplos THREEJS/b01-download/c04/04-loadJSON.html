@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - JSON</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+    
+    var house;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x63adef, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var textureLoader= new THREE.TextureLoader();
+        var floorTexture=textureLoader.load("../data/graphics/textures/terrain/grass1.jpg");
+        floorTexture.wrapS=THREE.RepeatWrapping;
+        floorTexture.wrapT=THREE.RepeatWrapping;
+        floorTexture.repeat.set(8,8);
+        
+        var planeGeometry = new THREE.PlaneGeometry(50, 50);
+        var planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map:floorTexture});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = 0;
+        scene.add(plane);
+
+        camera.position.x = 1.5;
+        camera.position.y = 2.5;
+        camera.position.z = -6.5;
+        camera.lookAt(new THREE.Vector3(0,2.5,0));
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.camera.near = 0;
+        light.shadow.camera.far = 50; 
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        scene.add(light);
+
+        control = new function() {
+            this.opacity = 1;
+            this.color = 0x086113;
+            this.side=THREE.DoubleSide;
+            this.cameraPos=0;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        loadJSON ("../data/models/json/house.json", scene, function (obj){
+            house=obj;
+            house.scale.x=house.scale.z=1.5;
+            house.updateMatrix();
+            render();
+        });
+		window.addEventListener('resize', handleResize, false);
+        
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'opacity', 0.1, 1);
+        gui.add(controlObject, 'side', {
+            "THREE.FrontSide" : THREE.FrontSide,
+            "THREE.DoubleSide" : THREE.DoubleSide
+        });
+        gui.add(controlObject, 'cameraPos', {
+            "inside" : 0,
+            "outside" : 1
+        });
+    }
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        house.material.transparent = true;
+        house.material.opacity = control.opacity;
+        house.material.side= +control.side;
+
+        if (control.cameraPos==0) {
+            camera.position.x = 1.5;
+            camera.position.y = 2.5;
+            camera.position.z = -6.5;
+            camera.lookAt(new THREE.Vector3(0,2.5,0));
+        } else {
+            camera.position.x = -17;
+            camera.position.y = 9;
+            camera.position.z = 17;
+            camera.lookAt(scene.position);
+        }
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function loadJSON (fileOBJ, scene, fSuc, fFail) {
+         var onProgress = function (xhr) {
+                if (xhr.lengthComputable) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log(Math.round(percentComplete, 2) + '% downloaded');
+                }
+        };
+
+        var onError = function (xhr) { 
+            if (fFail) {fFail(xhr);}
+            console.log('ERROR');
+        };
+        var loader = new THREE.JSONLoader();
+        loader.load(fileOBJ, function(model, material) {
+            var mesh = new THREE.Mesh(model, material[0]);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+            fSuc(mesh);
+        }, onProgress, onError);
+
+    };
+    
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+    
+
+</script>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+<!-- Adsense & google analytics-->
+<div id="adsense" style="position:absolute;background:#ff5063;width:468px;height:60px;z-index:9999;left:50%;margin-left:-234px;top:0px;">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle" style="display:inline-block;width:468px;height:60px" data-ad-client="ca-pub-7096241178360063" data-ad-slot="1466241659"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+<div id="close-adsense" style="position:absolute;background:url('../data/graphics/close-ad.png');width:15px;height:60px;z-index:9999;left:50%;margin-left:234px;cursor:pointer;top:0px" onclick="document.getElementById('adsense').style.display='none';document.getElementById('close-adsense').style.display='none';">
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85095147-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

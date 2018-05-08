@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>three.js webgl</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="../frameworks/highlight/styles/googlecode.min.css">
+	<link rel="stylesheet" href="../samples/css/code.css">
+	<script src="../frameworks/highlight/highlight.pack.js"></script>
+	<script src="../frameworks/highlight/highlightjs-line-numbers.min.js"></script>
+	<script src="../samples/js/code.js"></script>
+	<script>
+		hljs.initHighlightingOnLoad();
+		hljs.initLineNumbersOnLoad();
+	</script>
+</head>
+<body>
+
+<!-- code -->
+<div id="wrapper">
+<h2>07-css3drenderer.html</h2>
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;title&gt;three.js webgl - CSS3DRenderer&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;style&gt;
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+    
+        .large {
+            font-size: xx-large;
+        }
+    &lt;/style&gt;
+    &lt;script src=&quot;../frameworks/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../frameworks/renders/CSS3DRenderer.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+
+    var string = &#39;&lt;div style=&quot;padding:10px&quot;&gt;&#39; +
+            &#39;&lt;h1&gt;Esto es un elemento H1.&lt;/h1&gt;&#39; +
+            &#39;&lt;span class=&quot;large&quot;&gt;Esto es un texto&lt;/span&gt;&lt;br/&gt;&#39; +
+            &#39;&lt;textarea&gt; Y esto un TEXTAREA&lt;/textarea&gt;&lt;br/&gt;&#39; +
+            &#39;&lt;input type=&quot;button&quot; onclick=&quot;alert(\&#39;Yo soy un bot&#243;n\&#39;)&quot; value=&quot;Pulsame&quot; /&gt;&#39; +
+            &#39;&lt;/div&gt;&#39;;
+
+    var renderer;
+    var scene;
+    var camera;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.CSS3DRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.position.x = 500;
+        camera.position.y = 500;
+        camera.position.z = 500;
+        camera.lookAt(scene.position);
+
+        document.body.appendChild(renderer.domElement);
+        var cssElement = createCSS3DObject(string);
+        cssElement.position.set(100, 100, 100);
+        scene.add(cssElement);
+
+        render();
+    }
+
+    function createCSS3DObject(s) {
+        var wrapper = document.createElement(&#39;div&#39;);
+        wrapper.innerHTML = s;
+        var div = wrapper.firstChild;
+
+        div.style.width = &#39;370px&#39;;
+        div.style.height = &#39;370px&#39;;
+        div.style.opacity = 0.7;
+        div.style.background = new THREE.Color(Math.random() * 0xffffff).getStyle();
+
+        var object = new THREE.CSS3DObject(div);
+        return object;
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener(&quot;DOMContentLoaded&quot;, function(event) {
+        init();
+    });
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+</body>
+</html>

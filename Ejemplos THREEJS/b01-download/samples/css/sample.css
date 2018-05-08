@@ -1,0 +1,33 @@
+#sample-info-panel {
+    position: absolute;
+ 	z-index: 99999;
+	border: 1px solid #000000;
+    color: white;
+	font-size: 11px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+	width:400px;
+	left:50%;
+	margin-left:-200px;
+}
+#sample-info {
+	display:none;
+}
+#sample-buttons {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+	z-index: 99999;
+}
+
+#sample-view-code {
+}
+
+.sample-btn{
+    border: 1px solid #000000;
+    color: white;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+}

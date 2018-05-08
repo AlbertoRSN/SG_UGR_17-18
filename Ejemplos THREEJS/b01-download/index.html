@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The Five Planets - Libro 01</title>
+	<meta charset="utf-8">
+	<style>
+	.list-of-samples td{
+		vertical-align: top;
+		padding:5px;
+	}
+	.list-of-samples h4{
+		margin-top: 0px;
+		margin-bottom:10px;
+		text-transform: uppercase;
+	}
+	.sample-image {
+		max-width:265px;
+		width:265px;
+		height:150px;
+	}
+	</style >
+</head>
+<body>
+
+<div class="list-of-samples">
+<h3>C1 - THREE.JS: PRIMEROS PASOS</h3>
+<table>
+<tbody>
+<tr>
+<td><a href="c01/01-hello-threejs.html" target="_blank">
+<img class="sample-image" src="samples/c01-01.png" />
+</a></td>
+<td>
+<h4><a href="c01/01-hello-threejs.html" target="_blank">Hello world</a></h4>
+En este ejemplo veremos cómo crear una escena básica, y dotarla de animación. Nos servirá de base para introducir los conceptos más importantes de Three.js. Muestra un cubo que rota sobre su eje X,Y que se desplaza de derecha a izquierda y viceversa.</td>
+</tr>
+<tr>
+<td><a href="c01/02-vertices.html" target="_blank">
+<img class="sample-image" src="samples/c01-02.jpg" />
+</a></td>
+<td>
+<h4><a href="c01/02-vertices.html" target="_blank">Los vértices </a></h4>
+Este ejemplo sirve para introducir el concepto de los vértices. En él vemos un cubo con los vértices resaltados con pequeñas esferas rojas.</td>
+</tr>
+<tr>
+<td><a href="c01/03-faces.html" target="_blank">
+<img class="sample-image" src="samples/c01-03.jpg" />
+</a></td>
+<td>
+<h4><a href="c01/03-faces.html" target="_blank">Las caras</a></h4>
+El ejemplo muestra las caras de un cubo resaltadas con distintos colores. Nos sirve para introducir el concepto de las caras.</td>
+</tr>
+<tr>
+<td><a href="c01/04-geometry.html" target="_blank">
+<img class="sample-image" src="samples/c01-04.png" />
+</a></td>
+<td>
+<h4><a href="c01/04-geometry.html" target="_blank">Crear una geometría personalizada</a></h4>
+En esta URL podemos ver como crear una geometría básica, indicando la lista de los vértices, y de las caras que la forman.</td>
+</tr>
+<tr>
+<td><a href="c01/05-camera.html" target="_blank">
+<img class="sample-image" src="samples/c01-05.jpg" />
+</a></td>
+<td>
+<h4><a href="c01/05-camera.html" target="_blank">Las cámaras </a></h4>
+Este ejemplo ilustra el uso de la cámara en perspectiva vs la cámara isométrica (THREE.PrespectiveCamera vs THREE.OrthographicCamera).</td>
+</tr>
+<tr>
+<td><a href="c01/06-canvasrenderer.html" target="_blank">
+<img class="sample-image" src="samples/c01-06.png" />
+</a></td>
+<td>
+<h4><a href="c01/06-canvasrenderer.html" target="_blank">CanvasRenderer</a></h4>
+El código ilustra el uso del CanvasRenderer vs el WebGLRenderer. El CanvasRenderer no utiliza el Api de WebGL, por lo que permite ejecutarse en más dispositivos y versiones antiguas de los navegadores, pero tiene un peor rendimiento.</td>
+</tr>
+<tr>
+<td><a href="c01/07-css3drenderer.html" target="_blank">
+<img class="sample-image" src="samples/c01-07.jpg" />
+</a></td>
+<td>
+<h4><a href="c01/07-css3drenderer.html" target="_blank">CSS3Renderer</a></h4>
+Esta URL muestra cómo utilizar el Css3Renderer. Este render en vez de usar el Api del Canvas HTML para representar los objetos 3D, utiliza directamente los elementos HTML aplicando estilos CSS.</td>
+</tr>
+<tr>
+<td><a href="c01/08-hello-threejs-scale.html" target="_blank">
+<img class="sample-image" src="samples/c01-08.png" />
+</a></td>
+<td>
+<h4><a href="c01/08-hello-threejs-scale.html" target="_blank">Escala y añadir objetos dentro de otros</a></h4>
+Muestra el ejemplo inicial, pero en él se introduce el concepto de la escala, de forma que el cubo, al tiempo que va girando sobre sí mismo, cambia de tamaño. También se introduce el concepto de añadir un objeto dentro de otro, en lugar de añadirlo en la escena, de esta forma los objetos hijos se mueven junto con el padre, sólo cambiando la posición del padre.</td>
+</tr>
+<tr>
+<td><a href="c01/09-rotate-object-around-point.html" target="_blank">
+<img class="sample-image" src="samples/c01-09.png" />
+</a></td>
+<td>
+<h4><a href="c01/09-rotate-object-around-point.html" target="_blank">Rotar objeto alrededor de un punto</a></h4>
+El código muestra como rotar un objeto alrededor de un punto, en lugar de girar sobre su eje.</td>
+</tr>
+</tbody>
+</table>
+<h3>C2 - TREEJS: PREPARANDO EL ENTORNO DE DESARROLLO</h3>
+<table>
+<tbody>
+<tr>
+<td><a href="c02/01-solve-cross-origin-issues.html" target="_blank"><img class="sample-image" src="samples/c02-01.jpg" /></a></td>
+<td>
+<h4><a href="c02/01-solve-cross-origin-issues.html" target="_blank">Error en la carga de texturas</a></h4>
+Cuando desarrollamos soluciones con Three.js la forma más simple para probar los resultados es abriendo el fichero local con el navegador. Esta solución no funcionará en todos los casos, generando un error de seguridad cuando cargamos texturas con imágenes. Este ejemplo provoca el error de seguridad si se abre localmente.</td>
+</tr>
+<tr>
+<td><a href="c02/02-statistics.html" target="_blank"><img class="sample-image" src="samples/c02-02.png" /></a></td>
+<td>
+<h4><a href="c02/02-statistics.html" target="_blank">Estadísticas</a></h4>
+El rendimiento es un punto vital en la animación 3D y el mundo de los videojuegos. Aquí mostramos como obtener estadísticas de los frames mostrados por segundo, del consumo de memoria, y las milésimas de segundo consumidas en renderizar una escena.</td>
+</tr>
+<tr>
+<td><a href="c02/03-controls.html" target="_blank"><img class="sample-image" src="samples/c02-03.png" /></a></td>
+<td>
+<h4><a href="c02/03-controls.html" target="_blank">Controles personalizados</a></h4>
+En este enlace aprendemos como crear controles personalizados, que nos permitan en tiempo real alterar el comportamiento de nuestras animaciones.</td>
+</tr>
+<tr>
+<td><a href="c02/04-detect-webgl-support.html" target="_blank"><img class="sample-image" src="samples/c02-04.png" /></a></td>
+<td>
+<h4><a href="c02/04-detect-webgl-support.html" target="_blank">Detectar soporte WebGL</a></h4>
+Con este script vemos como determinar si el navegador con el que ejecutamos nuestra aplicación soporta el API WebGL. De esta forma para dispositivos antiguos o navegadores poco potentes podemos dar una respuesta distinta.</td>
+</tr>
+</tbody>
+</table>
+<h3>C3 - THREEJS: GEOMETRÍAS, MATERIALES, LUCES Y SOMBRAS</h3>
+<table>
+<tbody>
+<tr>
+<td><a href="c03/01-geometrias3D.html" target="_blank"><img class="sample-image" src="samples/c03-01.jpg" /></a></td>
+<td>
+<h4><a href="c03/01-geometrias3D.html" target="_blank">Geometrías 3D predefinidas</a></h4>
+En este ejemplo aprenderemos a usar las geometrías básicas que por defecto nos ofrece Three.js (el cubo, la esfera, los poliedros, el cilindro, el cono, el torus y el nudo).</td>
+</tr>
+<tr>
+<td><a href="c03/02-geometrias2D.html" target="_blank"><img class="sample-image" src="samples/c03-02.png" /></a></td>
+<td>
+<h4><a href="c03/02-geometrias2D.html" target="_blank">Geometrías 2D predefinidas</a></h4>
+Con este script vemos cómo usar algunas de las clases para crear geometrías planas (el plano, el círculo, el polígono y el anillo).</td>
+</tr>
+<tr>
+<td><a href="c03/03-start.html" target="_blank"><img class="sample-image" src="samples/c03-03.jpg" /></a></td>
+<td>
+<h4><a href="c03/03-start.html" target="_blank">Figura plana personalizada 1</a></h4>
+Con este ejemplo vemos como crear una figura plana, indicando una lista de puntos (x,y), de forma que se traza una línea de punto a punto siguiendo el orden de la lista.</td>
+</tr>
+<tr>
+<td><a href="c03/04-start1.html" target="_blank"><img class="sample-image" src="samples/c03-04.jpg" /></a></td>
+<td>
+<h4><a href="c03/04-start1.html" target="_blank">Figura plana personalizada 2</a></h4>
+El ejemplo es igual que el anterior, pero en lugar de crear la estrella indicando la lista de puntos, usamos instrucciones para ir moviendo un puntero imaginario e ir dibujando líneas rectas, arcos,….</td>
+</tr>
+<tr>
+<td><a href="c03/05-start2.html" target="_blank"><img class="sample-image" src="samples/c03-05.jpg" /></a></td>
+<td>
+<h4><a href="c03/05-start2.html" target="_blank">Figura plana personalizada con agujeros</a></h4>
+Para figuras planas más complejas disponemos de la propiedad holes que nos permite crear agujeros en su superficie. Los agujeros en realidad son figuras planas que creamos igual como hemos visto. Partiendo del ejemplo anterior, en la estrella dibujamos un agujero circular.</td>
+</tr>
+<tr>
+<td><a href="c03/06-shape.html" target="_blank"><img class="sample-image" src="samples/c03-06.jpg" /></a></td>
+<td>
+<h4><a href="c03/06-shape.html" target="_blank">Figuras planas personalizadas</a></h4>
+En este ejemplo utilizamos las distintas técnicas para crear figuras planas que hemos visto para crear varias geometrías personalizadas (des de una cara, un pez, la estrella,...).</td>
+</tr>
+<tr>
+<td><a href="c03/07-start3.html" target="_blank"><img class="sample-image" src="samples/c03-07.jpg" /></a></td>
+<td>
+<h4><a href="c03/07-start3.html" target="_blank">Dar volumen a una figura planas</a></h4>
+En este ejemplo vemos como dar volumen a las figuras planas que hemos definido usando la clase THREE.ExtrudeGeometry.</td>
+</tr>
+<tr>
+<td><a href="c03/08-text3D.html" target="_blank"><img class="sample-image" src="samples/c03-08.png" /></a></td>
+<td>
+<h4><a href="c03/08-text3D.html" target="_blank">Texto en 3D</a></h4>
+Una funcionalidad de Three.js, es que permite crear textos en 3D fácilmente. Para ello necesitamos una fuente en formato (typefaced), lista para ser usada en Three.js. El código muestra cómo generar textos en tres dimensiones.</td>
+</tr>
+<tr>
+<td><a href="c03/09-mesh-basic-material.html" target="_blank"><img class="sample-image" src="samples/c03-09.jpg" /></a></td>
+<td>
+<h4><a href="c03/09-mesh-basic-material.html" target="_blank">THREE.MeshBasicMaterial</a></h4>
+El ejemplo ilustra el uso del material THREE.MeshBasicMaterial. Este material no está afectado por la luz y las sombras, por lo que es visible sin necesidad de añadir luces. Muestra un color solido uniforme o bien líneas solidas uniendo los vértices (whireframe).</td>
+</tr>
+<tr>
+<td><a href="c03/10-mesh-normal-material.html" target="_blank"><img class="sample-image" src="samples/c03-10.jpg" /></a></td>
+<td>
+<h4><a href="c03/10-mesh-normal-material.html" target="_blank">THREE.MeshNormalMaterial</a></h4>
+Este material, igual que el anterior, no está afectado por la luz y las sombras, por lo que es visible sin necesidad de añadir luces. La superficie del objeto varia de color entre las tonalidades (rojo, verde, y azul) según la magnitud de los valores X/Y/Z del vector normal.</td>
+</tr>
+<tr>
+<td><a href="c03/11-mesh-depth-material.html" target="_blank"><img class="sample-image" src="samples/c03-11.jpg" /></a></td>
+<td>
+<h4><a href="c03/11-mesh-depth-material.html" target="_blank">THREE.MeshDepthMaterial</a></h4>
+La superficie se muestra con un color gris, que se oscurece o aclara según la distancia de la cámara. Se suele utilizar en el momento de diseñar las escenas, antes de aplicar texturas más elaboradas.</td>
+</tr>
+<tr>
+<td><a href="c03/12-mesh-lambert-material.html" target="_blank"><img class="sample-image" src="samples/c03-12.jpg" /></a></td>
+<td>
+<h4><a href="c03/12-mesh-lambert-material.html" target="_blank">THREE.MeshLambertMaterial</a></h4>
+Con este material la superficie del objeto es afectado por las luces, de forma que se oscurece o aclara según la distancia de la luz, pero no genera brillos. Para poder visualizarlo es necesario que haya alguna luz incidiendo sobre la superficie, en caso contrario aparecerá de color negro.</td>
+</tr>
+<tr>
+<td><a href="c03/13-mesh-phong-material.html" target="_blank"><img class="sample-image" src="samples/c03-13.jpg" /></a></td>
+<td>
+<h4><a href="c03/13-mesh-phong-material.html" target="_blank">THREE.MeshPhongMaterial</a></h4>
+Este material es el más usado para la representación final de las escenas, ya que es afectado por la luz, oscureciéndose por las sombras y también generando brillos. Por ejemplo una luz blanca incidiendo directamente sobre el objeto, producirá reflejos, mientras que las partes poco expuestas a la luz se oscurecerán.</td>
+</tr>
+<tr>
+<td><a href="c03/14-multi-material.html" target="_blank"><img class="sample-image" src="samples/c03-14.jpg" /></a></td>
+<td>
+<h4><a href="c03/14-multi-material.html" target="_blank">THREE.MultiMaterial</a></h4>
+Este material, en realidad es un array de otros materiales primarios, de forma que puedes indicar que material quieres para cada superficie.</td>
+</tr>
+<tr>
+<td><a href="c03/15-basic-texture.html" target="_blank"><img class="sample-image" src="samples/c03-15.jpg" /></a></td>
+<td>
+<h4><a href="c03/15-basic-texture.html" target="_blank">Textura básica</a></h4>
+El ejemplo sirve para introducir el concepto de textura. El cubo giratorio que hemos usado en ejemplos anteriores lo hemos modificado para que en lugar de un color sólido presente una imagen en cada cara.</td>
+</tr>
+<tr>
+<td><a href="c03/16-multi-texture.html" target="_blank"><img class="sample-image" src="samples/c03-16.png" /></a></td>
+<td>
+<h4><a href="c03/16-multi-texture.html" target="_blank">Objetos con múltiples texturas</a></h4>
+En este ejemplo muestra como combinar varias texturas en una misma figura. Para ello proporcionamos una lista de seis materiales con unas texturas distinta para cada material.</td>
+</tr>
+<tr>
+<td><a href="c03/17-uv-mapping.html" target="_blank"><img class="sample-image" src="samples/c03-17.png" /></a></td>
+<td>
+<h4><a href="c03/17-uv-mapping.html" target="_blank">Mapeado UV</a></h4>
+Crear y cargar una imagen para cada cara de nuestro modelo se convierte en muy poco práctico cuando aumenta el número de caras. Partiendo del ejemplo anterior, mostramos como usar una sola imagen de textura, pero indicando que parte de la imagen debe usarse en cada cara.</td>
+</tr>
+<tr>
+<td><a href="c03/18-repeat-texture.html" target="_blank"><img class="sample-image" src="samples/c03-18.jpg" /></a></td>
+<td>
+<h4><a href="c03/18-repeat-texture.html" target="_blank">Repetir texturas</a></h4>
+Muchas veces nos encontraremos con la necesidad de repetir la misma textura sobre una superficie. En este ejemplo hemos creado una pared de ladrillos y un suelo de parqué, partiendo de dos imágenes, y repitiéndolas por la superficie.</td>
+</tr>
+<tr>
+<td><a href="c03/19-transparent-texture.html" target="_blank"><img class="sample-image" src="samples/c03-19.jpg" /></a></td>
+<td>
+<h4><a href="c03/19-transparent-texture.html" target="_blank">Texturas transparentes</a></h4>
+Este ejemplo muestra cómo usar imágenes con transparencias. Concreta-mente creamos varios planos con la textura de una planta y fondo transparente, y los cruzamos entre sí para ilustrar el efecto.</td>
+</tr>
+<tr>
+<td><a href="c03/20-directional-ambient-light.html" target="_blank"><img class="sample-image" src="samples/c03-20.jpg" /></a></td>
+<td>
+<h4><a href="c03/20-directional-ambient-light.html" target="_blank">Iluminación de ambiente (THREE.AmbientLight) y direccional
+(THREE.DirectionalLight)</a></h4>
+La luz de ambiente ilumina todas las caras de los objetos que haya en la escena, estén donde estén. La iluminación direccional es como la luz del sol. Los rayos de luz van en paralelo unos respecto a los otros. El ejemplo muestra los dos tipos de luces.</td>
+</tr>
+<tr>
+<td><a href="c03/21-directional-hemisphere-light.html" target="_blank"><img class="sample-image" src="samples/c03-21.jpg" /></a></td>
+<td>
+<h4><a href="c03/21-directional-hemisphere-light.html" target="_blank">Luz Hemisférica (THREE.HemisphereLigh)</a></h4>
+La luz solar es reflejada por la tierra que a su vez vuelve a rebotar en la atmósfera, mientras que otra parte se dispersa por la atmósfera. El resultado es una luz muy suave que viene de una gran cantidad de direcciones. En Three.js, podemos crear algo similar con THREE.HemisphereLight.</td>
+</tr>
+<tr>
+<td><a href="c03/22-point-spot-light.html" target="_blank"><img class="sample-image" src="samples/c03-22.jpg" /></a></td>
+<td>
+<h4><a href="c03/22-point-spot-light.html" target="_blank">Punto de luz (THREE.PoinLight) y Luz focal (THREE.SpotLight)</a></h4>
+Estos tipos de luces están pensados como luces que provienen des de un punto en el espacio y actúan como se fueran bombillas o focos. Ambas luces soportan la proyección de sombras.</td>
+</tr>
+<tr>
+<td><a href="c03/23-spoth-light.html" target="_blank"><img class="sample-image" src="samples/c03-23.jpg" /></a></td>
+<td>
+<h4><a href="c03/23-spot-light.html" target="_blank">Luz focal (THREE.SpotLigth)</a></h4>
+En este ejemplo analizamos con más detalle la luz focal.</td>
+</tr>
+<tr>
+<td><a href="c03/24-shadows.html" target="_blank"><img class="sample-image" src="samples/c03-24.jpg" /></a></td>
+<td>
+<h4><a href="c03/24-shadows.html" target="_blank">Sombras</a></h4>
+Solo algunas luces son capaces de proyectar sombras. THREE.AmbientLight y THREE.HemisfereLight son luces de soporte que no generan sombras, mientras que THREE.DirectionalLight, THREE.PointLight y THREE.SpotLight sí que proyectan, siempre que esta funcionalidad se active explícita-mente. El ejemplo muestra cómo generar sombras usando estas luces.</td>
+</tr>
+</tbody>
+</table>
+<h3>C4 - THREEJS: CREANDO NUESTRO MUNDO</h3>
+<table>
+<tbody>
+<tr>
+<td><a href="c04/01-loadOBJ.html" target="_blank"><img class="sample-image" src="samples/c04-01.png" /></a></td>
+<td>
+<h4><a href="c04/01-loadOBJ.html" target="_blank">Formato .OBJ (THREE.OBJLoader y THREE.MTLLoader)</a></h4>
+Un estándar ampliamente soportado es el formato .OBJ. Con este formato, el modelo es descrito con dos archivos distintos. Un fichero *.obj que define la geometría y un fichero .mtl que define el material, además de los ficheros de textura (*.png, jpg). En este ejemplo vemos como cargar una torre.</td>
+</tr>
+<tr>
+<td><a href="c04/02-loadOBJ-house.html" target="_blank"><img class="sample-image" src="samples/c04-02.png" /></a></td>
+<td>
+<h4><a href="c04/02-loadOBJ-house.html" target="_blank">Cargar una casa</a></h4>
+El ejemplo es similar al anterior, pero ilustramos como manipular el objeto para alterar sus propiedades una vez cargado.</td>
+</tr>
+<tr>
+<td><a href="c04/03-loadDAE.html" target="_blank"><img class="sample-image" src="samples/c04-03.jpg" /></a></td>
+<td>
+<h4><a href="c04/03-loadDAE.html" target="_blank">Formato collada .DAE (THREE.ColladaLoader) y animaciones de objetos</a></h4>
+Collada (COLLAborative Design Activity) es un formato abierto definido mediante XML pensado para la representación de escenas en 3D. Para ilustrar la carga de objetos collada hemos creado un pequeño ejemplo donde cargamos uno de los monstruos que usaremos en el juego. Un perro alienígena con una única animación para simular el andar.</td>
+</tr>
+<tr>
+<td><a href="c04/04-loadJSON.html" target="_blank"><img class="sample-image" src="samples/c04-04.jpg" /></a></td>
+<td>
+<h4><a href="c04/04-loadJSON.html" target="_blank">Formato nativo de three.js</a></h4>
+El formato nativo de Three.js es representado con JSON. Para ilustrar su uso hemos exportado el modelo de la casa que hemos usado anteriormente al formato JSON.</td>
+</tr>
+<tr>
+<td><a href="c04/05-fog.html" target="_blank"><img class="sample-image" src="samples/c04-05.jpg" /></a></td>
+<td>
+<h4><a href="c04/05-fog.html" target="_blank">Niebla lineal</a></h4>
+La niebla se vuelve más densa de forma lineal, igual como pasa con el fenómeno atmosférico. Este ejemplo muestra cómo usar la niebla para conseguir que los elementos aparezcan progresivamente, y evitar el efecto de aparición súbita.</td>
+</tr>
+<tr>
+<td><a href="c04/06-fogexp2.html" target="_blank"><img class="sample-image" src="samples/c04-06.jpg" /></a></td>
+<td>
+<h4><a href="c04/06-fogexp2.html" target="_blank">Niebla exponencial</a></h4>
+La niebla se vuele más densa de forma exponencial. Este ejemplo muestra cómo usar la niebla exponencial.</td>
+</tr>
+<tr>
+<td><a href="c04/07-ground.html" target="_blank"><img class="sample-image" src="samples/c04-07.jpg" /></a></td>
+<td>
+<h4><a href="c04/07-ground.html" target="_blank">JUEGO - Crear un suelo básico</a></h4>
+En este punto ya tenemos suficientes conocimientos para crear la base del juego que nos permitirá definir la primera localización del mapa. En este ejemplo creamos la estructura base de nuestro juego, a la vez que presentamos la técnica más simple para crear un suelo.</td>
+</tr>
+<tr>
+<td><a href="c04/08-skybox.html" target="_blank"><img class="sample-image" src="samples/c04-08.jpg" /></a></td>
+<td>
+<h4><a href="c04/08-skybox.html" target="_blank">JUEGO - Crear un cielo con un cubo (Skybox)</a></h4>
+En este ejemplo analizamos como crear un cielo usando la técnica skybox. Para ello usamos un cubo que envuelve la escena, cada una de las seis caras del cubo muestra una parte del cielo.</td>
+</tr>
+<tr>
+<td><a href="c04/09-skysdome.html" target="_blank"><img class="sample-image" src="samples/c04-09.jpg" /></a></td>
+<td>
+<h4><a href="c04/09-skysdome.html" target="_blank">JUEGO - Crear un cielo con una esfera (Skydome)</a></h4>
+Vamos a representar el cielo con una esfera que envolverá el escenario en lugar de usar un cubo como en el ejemplo anterior. Para esta técnica usamos una sola imagen.</td>
+</tr>
+<tr>
+<td><a href="c04/10-skyshpere-noimg.html" target="_blank"><img class="sample-image" src="samples/c04-10.jpg" /></a></td>
+<td>
+<h4><a href="c04/10-skyshpere-noimg.html" target="_blank">JUEGO - Crear un cielo con una esfera y con un degradado</a></h4>
+Otra forma para crear el cielo es usar una esfera, pero en lugar de usar una imagen, usaremos un degradado de colores. El ejemplo muestra una versión muy simple de esta técnica.</td>
+</tr>
+<tr>
+<td><a href="c04/11-vegetation.html" target="_blank"><img class="sample-image" src="samples/c04-11.jpg" /></a></td>
+<td>
+<h4><a href="c04/11-vegetation.html" target="_blank">JUEGO - Usar THREE.Sprite para crear hierva y arboles</a></h4>
+Un componente importante en los juegos y las escenas en 3D es la representación de la vegetación. Representar amplios prados y bosques mediante modelos 3D detallados no es viable debido a la caída de rendimiento. En este ejemplo vemos una técnica usando SPRITES.</td>
+</tr>
+<tr>
+<td><a href="c04/12-vegetation-planes.html" target="_blank"><img class="sample-image" src="samples/c04-12.jpg" /></a></td>
+<td>
+<h4><a href="c04/12-vegetation-planes.html" target="_blank">JUEGO - Usar planos para crear hierva</a></h4>
+Otra técnica para representar hierba es mediante planos que se cruzan, ello reduce enormemente el número de polígonos. Este ejemplo muestra cómo conseguir este efecto para poblar una amplia zona.</td>
+</tr>
+<tr>
+<td><a href="c04/13-map.html" target="_blank"><img class="sample-image" src="samples/c04-13.jpg" /></a></td>
+<td>
+<h4><a href="c04/13-map.html" target="_blank">JUEGO - Crear el mapa del juego</a></h4>
+Ya hemos visto como cargar modelos 3D, añadirlos a la escena, y clonarlos en caso de desear repetirlos en una misma composición. En este punto iremos un poco más allá y veremos una forma de crear extensos mapas modulares.</td>
+</tr>
+<tr>
+<td><a href="c04/14-map-loadingbar.html" target="_blank"><img class="sample-image" src="samples/c04-14.jpg" /></a></td>
+<td>
+<h4><a href="c04/14-map-loadingbar.html" target="_blank">JUEGO - Crear una barra de progreso y una pantalla de carga</a></h4>
+Continuando con el ejemplo anterior, lo mejoraremos para incluir una SplashScreen, y una barra de progreso que muestre al usuario los pasos que se van realizando para cargar el mapa y los modelos usados en el juego.</td>
+</tr>
+<tr>
+<td><a href="c04/15-map-villagers.html" target="_blank"><img class="sample-image" src="samples/c04-15.jpg" /></a></td>
+<td>
+<h4><a href="c04/15-map-villagers.html" target="_blank">JUEGO - Añadir aldeanos y crear sus rutinas de la vida diaria</a></h4>
+Hasta ahora hemos visto como cargar elementos estáticos en nuestras escenas, incluso a cargar un modelo con una animación. En este ejemplo veremos cómo cargar varios modelos animados simultáneamente, y crear una primera versión de la inteligencia artificial. Para ello incluiremos varios aldeanos y crearemos sus rutinas de la vida cotidiana.</td>
+</tr>
+<tr>
+<td><a href="c04/16-map-monsters.html" target="_blank"><img class="sample-image" src="samples/c04-16.jpg" /></a></td>
+<td>
+<h4><a href="c04/16-map-monsters.html" target="_blank">JUEGO - Añadir monstruos y crear su inteligencia artificial</a></h4>
+Partiendo del ejemplo anterior, además de añadir los aldeanos, en la zona del bosque hemos incluido los enemigos. Para moverlos hemos usado una inteligencia muy básica que los mantiene dentro de un área concreta.</td>
+</tr>
+</tbody>
+</table>
+<h3>C5 - THREEJS: EXPLORAR E INTERACTUAR</h3>
+<table>
+<tbody>
+<tr>
+<td><a href="c05/01-controls.html" target="_blank"><img class="sample-image" src="samples/c05-01.jpg" /></a></td>
+<td>
+<h4><a href="c05/01-controls.html" target="_blank">JUEGO - Añadir el control del jugador por teclado y ratón</a></h4>
+Hasta ahora en los ejemplos hemos movido la cámara a través de un camino prefijado. Partiendo de este controlador lo hemos modificado para mover la camera manualmente con el teclado y el ratón, y simular una visión en primera persona, para nuestro juego.</td>
+</tr>
+<tr>
+<td><a href="c05/02-first-person-controls.html" target="_blank"><img class="sample-image" src="samples/c05-02.png" /></a></td>
+<td>
+<h4><a href="c05/02-first-person-controls.html" target="_blank">FirstPersonControls.js.</a></h4>
+FirstPersonControls.js ofrece una visión en primera persona, permitiendo controlar la cámara mediante el teclado y el ratón. Las teclas WASD o las flechas permiten el movimiento hacia Adelante/Izquierda/Atrás/Derecha, mientras que con “R” nos desplazamos hacia arriba y con “F” hacia abajo. Para mirar alrededor usamos el ratón. Es usado habitualmente para los juegos de disparos en primera persona
+</td>
+</tr>
+<tr>
+<td><a href="c05/03-fly-controls.html" target="_blank"><img class="sample-image" src="samples/c05-03.png" /></a></td>
+<td>
+<h4><a href="c05/03-fly-controls.html" target="_blank">FlyControls.js.</a></h4>
+Ofrece una visión que simula la levitación. Con las teclas WASD permiten el movimiento hacia Adelante/Izquierda/Atrás/Derecha, mientras que con “R” y “F” nos movemos hacia arriba y hacia abajo. Con “Q” y “E” giramos  la pantalla. Con el movimiento del ratón o con las flechas giramos para simular el movimiento de la cabeza. Con el botón izquierdo del ratón avanzamos y con el botón derecho retrocedimos.
+</td>
+</tr>
+<tr>
+<td><a href="c05/04-orbit-controls.html" target="_blank"><img class="sample-image" src="samples/c05-04.png" /></a></td>
+<td>
+<h4><a href="c05/04-orbit-controls.html" target="_blank">OrbitControls.js.</a></h4>
+Este control está especialmente pensado para las pantallas táctiles. Nos permite controlar la escena mediante el ratón o bien con los dedos en una pantalla táctil. Pulsando el botón izquierdo del ratón y moviéndolo, o arrastrando un solo dedo permite rotar la escena. Pulsando el botón central del ratón o la rueda de scroll, o usando dos dedos sobre la pantalla podemos ampliar o reducir la escena. Mientras que pulsando el botón derecho del ratón o bien las fechas, o con tres dedos para la pantalla táctil, movemos la cámara hacia arriba, abajo, izquierda o derecha. Es usado habitualmente para examinar y rotar un único objeto, permitiéndolo ver des de todos los ángulos.
+</td>
+</tr>
+<tr>
+<td><a href="c05/05-trackball-controls.html" target="_blank"><img class="sample-image" src="samples/c05-05.png" /></a></td>
+<td>
+<h4><a href="c05/05-trackball-controls.html" target="_blank">TrackballControls.js.</a></h4>
+Este contol es muy parecido al anterior, como difrencia principal es que no permite el control de la cámara mediante el teclado, sino únicamente por el ratón o mediante la pantalla táctil.  Por lo que es especialmente útil cuando en una misma pantalla disponemos de varios CANVAS. Por ejemplo en una tienda donde cada producto se muestra en 3D y podemos girarlo individualmente, sin afectar al resto.
+</td>
+</tr>
+<tr>
+<td><a href="c05/06-webcam-motion-detection.html" target="_blank"><img class="sample-image" src="samples/c05-06.jpg" /></a></td>
+<td>
+<h4><a href="c05/06-webcam-motion-detection.html" target="_blank">Detección de movimiento vía Webcam.</a></h4>
+En este ejemplo aprenderemos cómo usar la webcam para detectar el movimiento del usuario, que podrá interactuar con nuestra página web sin necesidad de teclado ni ratón.</td>
+</tr>
+<tr>
+<td><a href="c05/07-controls-motion-detection.html" target="_blank"><img class="sample-image" src="samples/c05-07.jpg" /></a></td>
+<td>
+<h4><a href="c05/07-controls-motion-detection.html" target="_blank">JUEGO - Detección de movimiento vía Webcam.</a></h4>
+En este ejemplo aprenderemos cómo aplicar la técnologia anterior para que pueda controlar el juego sin necesidad de teclado ni ratón.</td>
+</tr>
+<tr>
+<td><a href="c05/08-gamepad.html" target="_blank"><img class="sample-image" src="samples/c05-08.jpg" /></a></td>
+<td>
+<h4><a href="c05/08-gamepad.html" target="_blank">HTML5 - Control vía Gamepad.</a></h4>
+Un punto importante al crear un videojuego es decidir la forma como controlamos nuestros juegos. Actualmente con la popularización de las consolas (Xbox, PlayStation, Wii,…) muchos usuarios se han habituado a usar los Gamepads y Joysticks para este fin. En este ejemplo aprenderemos cómo usar el API de HTML5 para usar estos dispositivos.</td>
+</tr>
+<tr>
+<td><a href="c05/09-controls-gamepad.html" target="_blank"><img class="sample-image" src="samples/c05-09.jpg" /></a></td>
+<td>
+<h4><a href="c05/09-controls-gamepad.html" target="_blank">JUEGO - Control vía Gamepad.</a></h4>
+En este ejemplo aprenderemos cómo aplicar la tecnología anterior para que pueda controlar el juego con un gamepad. Con el joystick pulgar de la izquierda nos moveremos hacia adelante, atrás, derecha e izquierda, mientras que con el joystick de la derecha giraremos la cámara hacia los lados. Pulsando el botón 6 al mismo tiempo que nos desplazamos aceleraremos la velocidad, simulando el hecho de correr.</td>
+</tr>
+<tr>
+<td><a href="c05/10-raycaster-select-click.html" target="_blank"><img class="sample-image" src="samples/c05-10.png" /></a></td>
+<td>
+<h4><a href="c05/10-raycaster-select-click.html" target="_blank">Seleccionar objetos y clickar - RAYCASTER.</a></h4>
+En este apartado aprenderemos como seleccionar y clickar sobre objetos usando el ratón o el dedo sobre una pantalla táctil. Para ello, partimos de un ejemplo con una  escena llena de cubos grises. Al mover el ratón por la pantalla el cubo situado debajo del cursor se iluminará de rojo, en caso de haber más de uno, solo se seleccionará el más cercano a la pantalla. Al pulsar con el botón izquierdo del ratón sobre el cubo seleccionado cambiará de color a una tonalidad azul verdosa.
+</td>
+</tr>
+<tr>
+<td><a href="c05/11-raycaster-drag-drop.html" target="_blank"><img class="sample-image" src="samples/c05-11.jpg" /></a></td>
+<td>
+<h4><a href="c05/11-raycaster-drag-drop.html" target="_blank">Arrastrar y soltar - RAYCASTER.</a></h4>
+En este apartado iremos un poco más lejos que el anterior y no solo controlaremos la selección de objetos y pulsación sobre objetos, sino que también permitiremos arrastrarlos y soltarlos sobre otro objeto.
+</td>
+</tr>
+
+<tr>
+<td><a href="c05/12-game-pick.html" target="_blank"><img class="sample-image" src="samples/c05-12.jpg" /></a></td>
+<td>
+<h4><a href="c05/12-game-pick.html" target="_blank">Interactuando con los elementos del juego</a></h4>
+En esta versión del juego hemos añadido baúles, pócimas y otros objetos en el juego, con los que poder interactuar.
+</td>
+</tr>
+
+<tr>
+<td><a href="c05/13-full-screen.html" target="_blank"><img class="sample-image" src="samples/c05-13.jpg" /></a></td>
+<td>
+<h4><a href="c05/13-full-screen.html" target="_blank">Pantalla completa (API HTML5 Full screen)</a></h4>
+En este ejemplo vemos como usar el API para solicitar el visionado en pantalla completa.
+</td>
+</tr>
+
+<tr>
+<td><a href="c05/14-pointer-look.html" target="_blank"><img class="sample-image" src="samples/c05-14.jpg" /></a></td>
+<td>
+<h4><a href="c05/14-pointer-look.html" target="_blank">Bloqueo del puntero del ratón (Pointer Lock API)</a></h4>
+En este ejemplo vamos un poco más lejos y vemos como usar el bloqueo del puntero del ratón.
+</td>
+</tr>
+
+<tr>
+<td><a href="c05/15-pointer-look-game.html" target="_blank"><img class="sample-image" src="samples/c05-15.jpg" /></a></td>
+<td>
+<h4><a href="c05/15-pointer-look-game.html" target="_blank">Pantalla completa y bloqueo del ratón aplicado al juego</a></h4>
+En este ejemplo vemos como usar el bloqueo del puntero del ratón en el juego.
+</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+</body>
+</html>

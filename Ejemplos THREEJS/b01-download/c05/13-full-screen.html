@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>The Five Planets - fullscreen</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style>
+		body {
+			text-align:center;
+		}
+	
+		.demo-img {
+			height:128px;
+			width:128px;
+		}
+		.demo-img:fullscreen {
+			padding:42px;
+			background-color: blue;
+			border:2px solid #f00;
+		}
+
+		.demo-img:-webkit-full-screen {
+			padding:42px;
+			background-color: blue;
+			border:2px solid #f00;
+		}
+
+		.demo-img:-moz-full-screen {
+			padding:42px;
+			background-color: blue;
+			border:2px solid #f00;
+		}
+		
+		.demo-img:-ms-fullscreen  {
+			padding:42px;
+			background-color: blue;
+			border:2px solid #f00;
+		}
+						
+    </style>	
+	<link rel="stylesheet" href="../samples/css/sample.css">
+	<script src="../samples/js/sample.js"></script>
+	<script>
+	function fullscreenEnabled() {
+      return document.fullscreenEnabled || 
+            document.webkitFullscreenEnabled ||
+            document.mozFullScreenEnabled ||
+            document.msFullscreenEnabled;
+	};
+	
+	function fullscreen(element) {
+      if (!element) element=document.documentElement; 
+      element.requestFullscreen = element.requestFullscreen ||
+            element.mozRequestFullScreen ||
+            element.webkitRequestFullscreen ||
+            element.msRequestFullscreen;
+      element.requestFullscreen();
+	}
+	
+	function exitFullscreen() {
+      document.exitFullscreen = document.exitFullscreen ||
+            document.mozCancelFullScreen ||
+            document.webkitExitFullscreen ||
+            document.msExitFullscreen;
+      document.exitFullscreen();
+	}
+	
+	function isInFullscreenMode() {
+		return document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement ||
+			document.msFullscreenElement;
+	}
+	
+	function toggleFullscreen() {
+		if (isInFullscreenMode()) {
+			exitFullscreen();
+		} else {
+			fullscreen();
+		}
+	}
+	
+	function handlerScreenChange () {
+		if (isInFullscreenMode()) {
+			document.getElementById("status").innerHTML="Modo pantalla completa activado";
+		} else {
+			document.getElementById("status").innerHTML="Modo pantalla completa desactivado";
+		}
+	}
+
+	function init () {
+		if (fullscreenEnabled()) {
+			document.getElementById("supported").innerHTML="El API HTML5 Fullscreen está disponible";
+			document.getElementById("supported").style.color="green"
+			handlerScreenChange ();
+		 } else {
+			document.getElementById("supported").innerHTML="El API HTML5 Fullscreen no está disponible";
+			document.getElementById("supported").style.color="red"
+		}
+	}
+	
+	
+	document.addEventListener("fullscreenchange", handlerScreenChange);
+	document.addEventListener("webkitfullscreenchange", handlerScreenChange);
+	document.addEventListener("mozfullscreenchange", handlerScreenChange);
+	document.addEventListener("MSFullscreenChange", handlerScreenChange);
+	window.addEventListener("load", init);
+
+
+	</script>
+</head>
+<body>
+
+<p>Api </p>
+<button id="request" onclick="fullscreen()">Solicitar pantalla completa</button>
+<button id="exit" onclick="exitFullscreen()">Cancelar pantalla completa</button>
+<button id="toggle" onclick="toggleFullscreen()">Intercambiar modo</button>
+<br><br>
+
+<div id="supported"></div>
+<div id="status"></div>
+
+<p>Pulsa sobre una de las imagenes para verla a pantalla completa</p>
+<center>
+<table>
+<tr>
+<td><img class="demo-img" src="..\data\graphics\portraits\male_magician.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\male_magician2.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\female_magician1.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\female_magician2.png" onclick="fullscreen(this)"></td>
+</tr>
+<tr>
+<td><img class="demo-img" src="..\data\graphics\portraits\female_cat1.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\female_elf1.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\male_cat1.png" onclick="fullscreen(this)"></td>
+<td><img class="demo-img" src="..\data\graphics\portraits\male_elf1.png" onclick="fullscreen(this)"></td>
+</tr>
+</table>
+</center>
+
+
+
+
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

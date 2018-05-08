@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Geometrías 3D</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(30, 23);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = -2;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        var darkMaterial = new THREE.MeshPhongMaterial({color: 0x086113, transparent:true, opacity:1});
+        var wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ); 
+        var multiMaterial =[ darkMaterial, wireframeMaterial ]; 
+        var shape;
+    
+        // cube
+        var cube=new THREE.CubeGeometry(4, 4, 4, 1, 1, 1);
+        shape = THREE.SceneUtils.createMultiMaterialObject( cube, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "cube";
+        shape.position.set(-6,0,-3)
+        scene.add( shape );
+
+        // sphere
+        var sphere=new THREE.SphereGeometry (2,16, 16);
+        shape = THREE.SceneUtils.createMultiMaterialObject( sphere, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "sphere";
+        shape.position.set(0,0,-3)
+        scene.add( shape );
+
+        // icosahedron
+        var icosahedron=new THREE.IcosahedronGeometry (2,0);
+        shape = THREE.SceneUtils.createMultiMaterialObject( icosahedron, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "icosahedron";
+        shape.position.set(6,0,-3)
+        scene.add( shape );
+
+        // dodecahedron
+        var dodecahedron=new THREE.DodecahedronGeometry(2,0);
+        shape = THREE.SceneUtils.createMultiMaterialObject( dodecahedron, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "dodecahedron";
+        shape.position.set(-6,0,3)
+        scene.add( shape );
+        
+        // octahedron
+        var octahedron=new THREE.OctahedronGeometry(2,0);
+        shape = THREE.SceneUtils.createMultiMaterialObject( octahedron, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "octahedron";
+        shape.position.set(0,0,3)
+        scene.add( shape );
+        
+        // tetrahedron
+        var tetrahedron=new THREE.TetrahedronGeometry(2,0);
+        shape = THREE.SceneUtils.createMultiMaterialObject( tetrahedron, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "tetrahedron";
+        shape.position.set(6,0,3)
+        scene.add( shape );
+        
+        // cylinder
+        var cylinder=new THREE.CylinderGeometry(2,2,4);
+        shape = THREE.SceneUtils.createMultiMaterialObject( cylinder, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "cylinder";
+        shape.position.set(6,0,9)
+        scene.add( shape );
+        
+        // cone
+        var cone=new THREE.ConeGeometry(2,4,8);
+        shape = THREE.SceneUtils.createMultiMaterialObject( cone, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "cone";
+        shape.position.set(0,0,9)
+        scene.add( shape );
+
+        // torus
+        var torus=new THREE.TorusGeometry(2,1,10,10);
+        shape = THREE.SceneUtils.createMultiMaterialObject( torus, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "torus";
+        shape.position.set(-6,1,9)
+        scene.add( shape );
+        
+        // torusknot
+        var torusKnot=new THREE.TorusKnotGeometry(2,0.5,35,10);
+        shape = THREE.SceneUtils.createMultiMaterialObject( torusKnot, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "torusknot";
+        shape.position.set(12,1,3)
+        scene.add( shape );
+        
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.bias = 0.1;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x086113;
+            this.cube=true;
+            this.sphere=true;
+            this.icosahedron=true;
+            this.dodecahedron=true;
+            this.octahedron=true;
+            this.tetrahedron=true;
+            this.cylinder=true;
+            this.cone=true;
+            this.torus=true;
+            this.torusknot=true;
+            this.castShadow=true;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+        gui.add(controlObject, 'opacity', 0.1, 1);
+        gui.addColor(controlObject, 'color');
+        gui.add(controlObject, 'cube');
+        gui.add(controlObject, 'sphere');
+        gui.add(controlObject, 'icosahedron');
+        gui.add(controlObject, 'dodecahedron');
+        gui.add(controlObject, 'octahedron');
+        gui.add(controlObject, 'tetrahedron');
+        gui.add(controlObject, 'cylinder');
+        gui.add(controlObject, 'cone');
+        gui.add(controlObject, 'torus');
+        gui.add(controlObject, 'torusknot');
+        gui.add(controlObject, 'castShadow');
+    }
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        scene.getObjectByName('cube').material.opacity = control.opacity;
+        scene.getObjectByName('cube').material.color = new THREE.Color(control.color);
+        
+        scene.getObjectByName('cube').parent.visible=control.cube;
+        scene.getObjectByName('cube').castShadow=control.castShadow;
+        scene.getObjectByName('sphere').parent.visible=control.sphere;
+        scene.getObjectByName('sphere').castShadow=control.castShadow;
+        scene.getObjectByName('icosahedron').parent.visible=control.icosahedron;
+        scene.getObjectByName('icosahedron').castShadow=control.castShadow;
+        scene.getObjectByName('dodecahedron').parent.visible=control.dodecahedron;
+        scene.getObjectByName('dodecahedron').castShadow=control.castShadow;
+        scene.getObjectByName('octahedron').parent.visible=control.octahedron;
+        scene.getObjectByName('octahedron').castShadow=control.castShadow;
+        scene.getObjectByName('tetrahedron').parent.visible=control.tetrahedron;
+        scene.getObjectByName('tetrahedron').castShadow=control.castShadow;
+        scene.getObjectByName('cylinder').parent.visible=control.cylinder;
+        scene.getObjectByName('cylinder').castShadow=control.castShadow;
+        scene.getObjectByName('cone').parent.visible=control.cone;
+        scene.getObjectByName('cone').castShadow=control.castShadow;
+        scene.getObjectByName('torus').parent.visible=control.torus;
+        scene.getObjectByName('torus').castShadow=control.castShadow;
+        scene.getObjectByName('torusknot').parent.visible=control.torusknot;
+        scene.getObjectByName('torusknot').castShadow=control.castShadow;
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.addEventListener("DOMContentLoaded", function(event) {
+            init();
+    });
+    window.addEventListener('resize', handleResize, false);
+
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

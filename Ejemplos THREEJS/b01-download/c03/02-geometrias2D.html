@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>three.js webgl - Geometías 2D</title>
+    <meta charset="utf-8">
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/dat.gui.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script>
+
+    var renderer;
+    var scene;
+    var camera;
+    var clock;
+    var control;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.physicallyCorrectLights = true;
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        var planeGeometry = new THREE.PlaneGeometry(25, 20);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 0;
+        plane.position.y = -2;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        var darkMaterial = new THREE.MeshPhongMaterial({color: 0x086113, transparent:true, opacity:1, side: THREE.DoubleSide });
+        var wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ); 
+        var multiMaterial =[ darkMaterial, wireframeMaterial ]; 
+        var shape;
+    
+        // plane
+        var plane=new THREE.PlaneGeometry(4, 4);
+        shape = THREE.SceneUtils.createMultiMaterialObject( plane, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "plane";
+        shape.position.set(-6,0,-3)
+        scene.add( shape );
+
+        // ring
+        var ring=new THREE.RingGeometry (1,2, 16);
+        shape = THREE.SceneUtils.createMultiMaterialObject( ring, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "ring";
+        shape.position.set(0,0,-3)
+        scene.add( shape );
+
+        // circle
+        var circle=new THREE.CircleGeometry( 2, 25 );
+        shape = THREE.SceneUtils.createMultiMaterialObject( circle, multiMaterial );
+        shape.children[ 0 ].castShadow = true;
+        shape.children[ 0 ].name= "circle";
+        shape.position.set(6,0,-3)
+        scene.add( shape );
+
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+
+
+        var ambient = new THREE.AmbientLight(0xffffff,0.3);
+        scene.add(ambient);
+        var light = new THREE.DirectionalLight(0xffffff, 1, 100, 2 );
+        light.position.set(10, 20 , 20); 
+        light.castShadow = true;
+        light.shadow.mapSize.width = 3 * 512; 
+        light.shadow.mapSize.height = 3 * 512;
+        light.shadow.bias = 0.1;
+        light.shadow.camera.top = 25; //X
+        light.shadow.camera.right = 25;
+        light.shadow.camera.left = -25;
+        light.shadow.camera.bottom = -25;
+        light.shadow.camera.visible = true;
+        
+        scene.add(light);
+
+        control = new function() {
+            this.rotationSpeed = 0.5;
+            this.opacity = 1;
+            this.color = 0x086113;
+            this.plane=true;
+            this.ring=true;
+            this.circle=true;
+        };
+        addControlGui(control);
+
+        clock = new THREE.Clock();
+        document.body.appendChild(renderer.domElement);
+
+        render();
+    }
+
+    function addControlGui(controlObject) {
+        var gui = new dat.GUI();
+        gui.add(controlObject, 'rotationSpeed', -1, 1);
+        gui.add(controlObject, 'opacity', 0.1, 1);
+        gui.addColor(controlObject, 'color');
+        gui.add(controlObject, 'plane');
+        gui.add(controlObject, 'ring');
+        gui.add(controlObject, 'circle');
+    }
+
+    function render() {
+
+        var delta =  clock.getDelta();
+        var rotSpeed = delta*control.rotationSpeed;
+        camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
+        camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
+        camera.lookAt(scene.position);
+
+        scene.getObjectByName('plane').material.opacity = control.opacity;
+        scene.getObjectByName('plane').material.color = new THREE.Color(control.color);
+        
+        scene.getObjectByName('plane').parent.visible=control.plane;
+        scene.getObjectByName('circle').parent.visible=control.circle;
+        scene.getObjectByName('ring').parent.visible=control.ring;
+
+        
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+
+    function handleResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.addEventListener("DOMContentLoaded", function(event) {
+            init();
+    });
+    window.addEventListener('resize', handleResize, false);
+
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+
+<body>
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>

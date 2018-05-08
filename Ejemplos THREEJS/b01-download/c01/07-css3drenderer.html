@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <title>three.js webgl - CSS3DRenderer</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+    
+        .large {
+            font-size: xx-large;
+        }
+    </style>
+    <script src="../frameworks/three.min.js"></script>
+    <script src="../frameworks/renders/CSS3DRenderer.js"></script>
+    <script>
+
+    var string = '<div style="padding:10px">' +
+            '<h1>Esto es un elemento H1.</h1>' +
+            '<span class="large">Esto es un texto</span><br/>' +
+            '<textarea> Y esto un TEXTAREA</textarea><br/>' +
+            '<input type="button" onclick="alert(\'Yo soy un botón\')" value="Pulsame" />' +
+            '</div>';
+
+    var renderer;
+    var scene;
+    var camera;
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        renderer = new THREE.CSS3DRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.position.x = 500;
+        camera.position.y = 500;
+        camera.position.z = 500;
+        camera.lookAt(scene.position);
+
+        document.body.appendChild(renderer.domElement);
+        var cssElement = createCSS3DObject(string);
+        cssElement.position.set(100, 100, 100);
+        scene.add(cssElement);
+
+        render();
+    }
+
+    function createCSS3DObject(s) {
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = s;
+        var div = wrapper.firstChild;
+
+        div.style.width = '370px';
+        div.style.height = '370px';
+        div.style.opacity = 0.7;
+        div.style.background = new THREE.Color(Math.random() * 0xffffff).getStyle();
+
+        var object = new THREE.CSS3DObject(div);
+        return object;
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener("DOMContentLoaded", function(event) {
+        init();
+    });
+    </script>
+    <link rel="stylesheet" href="../samples/css/sample.css">
+    <script src="../samples/js/sample.js"></script>
+</head>
+<body>
+
+
+
+<!-- butons -->
+<div id="sample-info">
+</div>
+<div id="sample-buttons" class="sample-btn">
+</div>
+
+</body>
+</html>
